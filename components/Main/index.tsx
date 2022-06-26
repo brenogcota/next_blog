@@ -42,7 +42,7 @@ const Main = () => {
                     </Text>
 
                     <Text size="md">
-                        I&apos;m a front end developer, musicist, and curious. I&apos;m currently Creating little 
+                        I&apos;m a front end developer, musicist, and curious. I&apos;m currently creating little 
                         things to help digital content products make your dreams come true at 
                         <Text 
                             as="a" 

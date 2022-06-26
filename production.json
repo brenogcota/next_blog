@@ -11,6 +11,6 @@
     "avatar": "https://avatars.githubusercontent.com/u/46490801",
     "spotify": {
         "auth": "https://accounts.spotify.com/api/token",
-        "playlists": "https://api.spotify.com/v1/users/brenocota/playlists"
+        "playlists": "https://raw.githubusercontent.com/brenogcota/brenogcota.github.io/master/src/config/recents.json"
     }
 }

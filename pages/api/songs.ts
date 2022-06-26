@@ -7,21 +7,9 @@ export default async function handler(
   res: NextApiResponse<any>
 ) {
   try {
-    const { access_token } = (await axios({
-      method: 'GET',
-      url: 'https://brenocota.vercel.app/api/access_token',
-    })).data;
-
-    console.log(access_token)
-
     const response = (await axios({
         method: 'GET',
         url: settings.spotify.playlists, 
-        headers: { 
-          "Accept": "application/json", 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${access_token}`
-        }
       }
     )).data
   

@@ -8,5 +8,9 @@
         "waaw": "https://waaw.com.br/",
         "iguatemi": "https://www.iguatemifortaleza.com.br/"
     },
-    "avatar": "https://avatars.githubusercontent.com/u/46490801"
+    "avatar": "https://avatars.githubusercontent.com/u/46490801",
+    "spotify": {
+        "auth": "https://accounts.spotify.com/api/token",
+        "playlists": "https://api.spotify.com/v1/users/brenocota/playlists"
+    }
 }

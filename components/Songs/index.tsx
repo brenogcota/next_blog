@@ -1,9 +1,11 @@
-import Image from "next/image";
+import axios from "axios";
 import { Suspense } from "react";
-import { useQuery } from "react-query";
 import { styled } from "stitches.config";
 import { Slider, SliderItem } from "ui/Slider";
 import Text from "ui/Text";
+
+import settings from 'production.json';
+import { useQuery } from "react-query";
 
 type Song = {
     track: {
@@ -50,11 +52,9 @@ const SpotifyCard = styled('div', {
 });
 
 const Songs = () => {
- const { error, data } = useQuery<Song[]>('playlist', () =>
-    fetch('https://raw.githubusercontent.com/brenogcota/brenogcota.github.io/master/src/config/recents.json').then(res =>
-        res.json()
-    )
-  )
+  const { error, data } = useQuery<Song[]>('playlist', async () =>
+    (await axios.get('/api/songs')).data
+  );
 
   if (error) return <></>
 

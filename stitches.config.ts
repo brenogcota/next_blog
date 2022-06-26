@@ -1,4 +1,4 @@
-import { createStitches } from '@stitches/react';
+import { createStitches, globalCss } from '@stitches/react';
 import * as utils from 'stitches-utils';
 
 export const { styled, getCssText, createTheme } = createStitches({
@@ -9,7 +9,8 @@ export const { styled, getCssText, createTheme } = createStitches({
         gray200: '#ddd',
         gray600: '#ccc',
         background: 'rgb(255,255,255)',
-        primary: 'hsl(230deg, 100%, 67%)'
+        primary: 'hsl(230deg, 100%, 67%)',
+        text: '$dark500'
       },
       space: {
         1: '5px',
@@ -19,7 +20,7 @@ export const { styled, getCssText, createTheme } = createStitches({
         8: '62px'
       },
       fontSizes: {
-        sx: '12px',
+        xs: '12px',
         sm: '14px',
         default: '16px',
         md: '20px',
@@ -50,16 +51,30 @@ export const { styled, getCssText, createTheme } = createStitches({
       zIndices: {},
       transitions: {},
     },
-    utils
+    utils,
+    media: {
+      bp1: '(min-width: 640px)',
+      bp2: '(min-width: 768px)',
+      bp3: '(min-width: 1024px)'
+    },
 });
 
 export const darkTheme = createTheme('dark', {
   colors: {
+    light600: '#666',
     dark600: '#f6f6f6',
     dark500: '#eee',
     gray200: '#ddd',
     gray600: '#f3f3f3',
     background: 'rgb(0,0,0)',
-    primary: 'hsl(230deg, 100%, 67%)'
+    primary: 'hsl(230deg, 100%, 67%)',
+    text: 'white',
   }
 });
+
+globalCss({
+  body: {
+    backgroundColor: '$background',
+    color: '$text'
+  }
+})()

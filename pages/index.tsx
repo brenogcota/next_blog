@@ -1,19 +1,13 @@
 import HeadSEO from 'components/Head'
+import Main from 'components/Main'
 import type { NextPage } from 'next'
-import styles from '../styles/Home.module.css'
 
 const Home: NextPage = () => {
   return (
-    <div className={styles.container}>
+    <div>
       <HeadSEO />
 
-      <main className={styles.main}>
-        
-      </main>
-
-      <footer className={styles.footer}>
-        
-      </footer>
+      <Main />
     </div>
   )
 }

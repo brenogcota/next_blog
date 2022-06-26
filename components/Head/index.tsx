@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import config from 'productions.json'
+import config from 'production.json'
 
 const HeadSEO = () => {
   return (

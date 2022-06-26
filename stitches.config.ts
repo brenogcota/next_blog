@@ -10,7 +10,8 @@ export const { styled, getCssText, createTheme } = createStitches({
         gray600: '#ccc',
         background: 'rgb(255,255,255)',
         primary: 'hsl(230deg, 100%, 67%)',
-        text: '$dark500'
+        text: '$dark500',
+        white: '#FFF'
       },
       space: {
         1: '5px',
@@ -69,6 +70,7 @@ export const darkTheme = createTheme('dark', {
     background: 'rgb(0,0,0)',
     primary: 'hsl(230deg, 100%, 67%)',
     text: 'white',
+    white: '#FFF'
   }
 });
 

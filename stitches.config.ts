@@ -1,15 +1,14 @@
 import { createStitches } from '@stitches/react';
 import * as utils from 'stitches-utils';
 
-export const { styled, getCssText } = createStitches({
+export const { styled, getCssText, createTheme } = createStitches({
     theme: {
       colors: {
-        gray500: 'hsl(206,10%,76%)',
-        blue500: 'hsl(206,100%,50%)',
-        purple500: 'hsl(252,78%,60%)',
-        green500: 'hsl(148,60%,60%)',
-        red500: 'hsl(352,100%,62%)',
-        white: 'rgb(255,255,255)',
+        dark600: '#333',
+        dark500: '#666',
+        gray200: '#ddd',
+        gray600: '#ccc',
+        background: 'rgb(255,255,255)',
         primary: 'hsl(230deg, 100%, 67%)'
       },
       space: {
@@ -52,4 +51,15 @@ export const { styled, getCssText } = createStitches({
       transitions: {},
     },
     utils
+});
+
+export const darkTheme = createTheme('dark', {
+  colors: {
+    dark600: '#f6f6f6',
+    dark500: '#eee',
+    gray200: '#ddd',
+    gray600: '#f3f3f3',
+    background: 'rgb(0,0,0)',
+    primary: 'hsl(230deg, 100%, 67%)'
+  }
 });

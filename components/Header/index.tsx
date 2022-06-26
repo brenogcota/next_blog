@@ -1,12 +1,17 @@
 import Spacer from 'ui/Spacer';
+import ThemeToggle from 'ui/ThemeToggle';
 
 import { HeaderLayout, Logo } from './stitches';
 
 const Header = () => {
   return (
     <HeaderLayout>
-        <Spacer size="md" />
-        <Logo><span>d</span>brno</Logo>
+      <Logo><span>d</span>brno</Logo>
+      <nav>
+        <a className='nav-item'>Me</a>
+        <a className='nav-item'>Snippets</a>
+        <ThemeToggle />
+      </nav>
     </HeaderLayout>
   );
 }

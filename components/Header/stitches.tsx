@@ -8,7 +8,8 @@ const itemHover = keyframes({
 export const HeaderLayout = styled('header', {
     backgroundColor: '$background',
     display: 'flex',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
+    padding: '$2 5vw',
     alignItems: 'center',
     boxShadow: '0 0 15px -5px #ddd',
     width: '100%',

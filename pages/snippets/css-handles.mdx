@@ -1,0 +1,19 @@
+**Make dynamic css classes**
+
+```javascript
+function cssHandles(...arguments) {
+   return arguments.reduce((acc, cur) => {
+     if (typeof cur === 'string') return acc + ` ${cur}`;
+     if (typeof cur === 'object') {
+        return Object.keys(cur).map((key) => {
+            if(cur[key]) return acc + ` ${key}`
+            return acc
+        }).filter(Boolean).join('').trim()
+         
+     }  
+   }, '')
+}
+
+cssHandles({ 'button--active': true, 'button--disabled': false, 'primary': true }, { 'is--open': false })
+> 'button--active primary'
+```

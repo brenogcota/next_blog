@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mdx-js/loader": "^2.1.2",
+    "@mdx-js/react": "^2.1.2",
+    "@next/mdx": "^12.1.6",
     "@radix-ui/react-switch": "^0.1.5",
     "@stitches/react": "^1.2.8",
     "axios": "^0.27.2",
@@ -17,6 +20,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-query": "^3.39.1",
+    "rehype-highlight": "^5.0.2",
     "stitches-utils": "^1.1.0"
   },
   "devDependencies": {

@@ -26,7 +26,7 @@ const Main = () => {
                 }
             }}
         >
-            <div className="left-column">
+            <div id="me" className="left-column">
                 <div>
                     <Text 
                         as="h1" 
@@ -54,6 +54,23 @@ const Main = () => {
                             }}
                         >
                             {' '} @Hotmart
+                        </Text>
+                    </Text>
+
+                    <Text size="md">
+                        Spending my time creating things that can be useful to other people is what motivates me.
+                        
+                        You can find more about what I&apos;ve been doing
+                        <Text 
+                            as="a" 
+                            size="md" 
+                            href={settings.github}
+                            css={{
+                                color: 'hsl(50, 100%, 77%)',
+                                fontWeight: '$md'
+                            }}
+                        >
+                            {' '} here.
                         </Text>
                     </Text>
                 </div>

@@ -33,7 +33,6 @@ const SpotifyCard = styled('div', {
     height: '250px',
     objectFit: 'cover',
     backgroundSize: '100%',
-    marginRight: '20px',
     borderRadius: '12px',
     transition: 'all .2s',
     cursor: 'pointer',

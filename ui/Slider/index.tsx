@@ -3,6 +3,7 @@ import { styled } from "@stitches/react";
 const Scroll = styled('div', {
     display: 'flex',
     padding: '$4',
+    gap: '$2',
     'overflow-x': 'scroll',
     'scroll-snap-type': 'x mandatory'
 });

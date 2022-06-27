@@ -1,0 +1,18 @@
+**Chrome default color picker snippet**
+
+```javascript
+function copy(value) {
+    setTimeout(async()=>console.log(
+     await window.navigator.clipboard.writeText(value)), 3000);
+    console.log("Color: " + value);
+}
+
+window.colorPicker = () => new EyeDropper().open().then((color)=> copy(color.sRGBHex))
+window.colorPicker();
+
+// create color picker snippet
+// press f12 and ctrl + o 
+// !color-picker
+// click in document and press tab before 3s
+```
+

@@ -6,6 +6,7 @@ import Text from "ui/Text";
 
 import settings from 'production.json';
 import { useQuery } from "react-query";
+import { useLocale } from "context/locale";
 
 type Song = {
     track: {
@@ -51,6 +52,7 @@ const SpotifyCard = styled('div', {
 });
 
 const Songs = () => {
+  const t = useLocale();
   const { error, data } = useQuery<Song[]>('playlist', async () =>
     (await axios.get('/api/songs')).data
   );
@@ -60,7 +62,7 @@ const Songs = () => {
   return (
     <Suspense fallback="Loading">
         <Container>
-            <Text as="h2" size="xlg" >Recently
+            <Text as="h2" size="xlg" >{t.recents}
                 <Text 
                     as="span" 
                     size="xlg"
@@ -68,7 +70,7 @@ const Songs = () => {
                         color: '$primary'
                     }}
                 >
-                    {' '} played songs
+                    {' '} {t.played_songs}
                 </Text>
             </Text>
             <Slider>

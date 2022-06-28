@@ -5,6 +5,7 @@ import CssHandles from 'pages/snippets/css-handles.mdx'
 import Utils from 'pages/snippets/utils.mdx'
 import Text from "ui/Text";
 import { styled } from "stitches.config";
+import { useLocale } from "context/locale";
 
 const snippets = [ColorPicker, CssHandles, Utils];
 
@@ -17,9 +18,11 @@ const Container = styled('section', {
 });
 
 const Snippets = () => {
+  const t = useLocale();
+
   return (
     <Container>
-      <Text as="h2" size="xlg" >My code
+      <Text as="h2" size="xlg" >{t.my_code}
           <Text 
               as="a" 
               size="xlg"
@@ -28,11 +31,11 @@ const Snippets = () => {
                   color: '$primary'
               }}
           >
-              {' '} Snippets
+              {' '} {t.snippets}
           </Text>
       </Text>
       <Text as="a" size="sm" href="https://gist.github.com/brenogcota">
-        See all snippets
+        {t.all_snippets}
         <Text 
               as="span" 
               size="sm"
@@ -41,7 +44,7 @@ const Snippets = () => {
                   fontWeight: '$lg'
               }}
           >
-              {' '} here
+              {' '} {t.here}
           </Text>
       </Text>
 

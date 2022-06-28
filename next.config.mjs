@@ -2,6 +2,7 @@
 
 import rehypeHighlight from 'rehype-highlight';
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   webpack: (config, options) => {
     config.module.rules.push({
@@ -25,4 +26,9 @@ export default {
     domains: ['avatars.githubusercontent.com', 'images.unsplash.com', 'i.scdn.co'],
   },
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
+  i18n: {
+    locales: ["en-US", "pt-BR"],
+    defaultLocale: "en-US",
+    localeDetection: false,
+  },
 }

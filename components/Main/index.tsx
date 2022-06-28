@@ -4,6 +4,7 @@ import settings from 'production.json';
 import { Grid } from "ui/Column";
 import Avatar from "components/Avatar";
 import { styled } from "stitches.config";
+import { useLocale } from "context/locale";
 
 const Container = styled('main', {
     padding: '$1 $4',
@@ -14,6 +15,8 @@ const Container = styled('main', {
 });
 
 const Main = () => {
+  const t = useLocale();
+
   return (
     <Container>
         <Grid 
@@ -37,13 +40,11 @@ const Main = () => {
                             }
                         }}
                     >
-                        A little bit <br />
-                        about me
+                       {t.title}
                     </Text>
 
                     <Text size="md">
-                        I&apos;m a front end developer, musicist, and curious. I&apos;m currently creating little 
-                        things to help digital content products make your dreams come true at 
+                        {t.about}
                         <Text 
                             as="a" 
                             size="md" 
@@ -58,9 +59,7 @@ const Main = () => {
                     </Text>
 
                     <Text size="md">
-                        Spending my time creating things that can be useful to other people is what motivates me.
-                        
-                        You can find more about what I&apos;ve been doing
+                        {t.about_2}
                         <Text 
                             as="a" 
                             size="md" 
@@ -70,14 +69,14 @@ const Main = () => {
                                 fontWeight: '$md'
                             }}
                         >
-                            {' '} here.
+                            {' '} {t.here}.
                         </Text>
                     </Text>
                 </div>
 
                 <Grid columns="3">
                 <div>
-                    <Text as="strong" size="md">Work Experience</Text> <br />
+                    <Text as="strong" size="md">{t.experience}</Text> <br />
                     <Text size="sm">Freelancer <br />may 2020 - jul 2020</Text>
                     <Text size="sm">Codeby <br />out 2020 - apr 2022</Text>
                     <Text size="sm">Hotmart <br />may 2022 - current</Text>

@@ -4,10 +4,12 @@ import Header from 'components/Header';
 import { ThemeProvider } from "next-themes";
 import { darkTheme } from 'stitches.config';
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
+import { LocaleProvider } from 'context/locale';
 
 const queryClient = new QueryClient();
 
 function MyApp({ Component, pageProps }: AppProps) {
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
@@ -17,8 +19,10 @@ function MyApp({ Component, pageProps }: AppProps) {
           light: "light",
           dark: darkTheme.className
       }}>
-        <Header />
-        <Component {...pageProps} />
+        <LocaleProvider>
+          <Header />
+          <Component {...pageProps} />
+        </LocaleProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

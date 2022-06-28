@@ -9,6 +9,11 @@
         "waaw": "https://waaw.com.br/",
         "iguatemi": "https://www.iguatemifortaleza.com.br/"
     },
+    "links": {
+        "github": "https://github.com/brenogcota",
+        "linkedin": "https://www.linkedin.com/in/breno-cota/",
+        "instagram": "https://www.instagram.com/dbrno/"
+    },
     "avatar": "https://avatars.githubusercontent.com/u/46490801",
     "spotify": {
         "auth": "https://accounts.spotify.com/api/token",

@@ -10,7 +10,16 @@ const animation = keyframes({
     '100%': {
         transform: 'scale(1.025)'
     }
-})
+});
+
+const start = keyframes({
+    '0%': {
+        opacity: 0
+    },
+    '100%': {
+        opacity: 1
+    }
+});
 
 const Container = styled('div', {
     position: 'relative',
@@ -37,7 +46,11 @@ const Avatar = () => {
     <Container>
 
         <Rotate
-            css={{ transform: 'rotate(-20deg)', top: 90 }}
+            css={{ 
+                transform: 'rotate(-20deg)', 
+                top: 90,
+                animation: `${start} .8s forwards`,
+            }}
         >
             <Image 
                 src="/profile-b.jpeg"
@@ -48,7 +61,11 @@ const Avatar = () => {
         </Rotate>
 
         <Rotate
-            css={{ transform: 'rotate(15deg)', top: 120 }}
+            css={{ 
+                transform: 'rotate(15deg)', 
+                top: 120,
+                animation: `${start} 1.4s forwards`,
+            }}
         >
             <Image 
                 src="/profile-a.jpeg"
@@ -58,7 +75,11 @@ const Avatar = () => {
             />
         </Rotate>
 
-        <Rotate>        
+        <Rotate
+            css={{
+                animation: `${start} 2s forwards`,
+            }}
+        >        
             <Image 
                 src={settings.avatar}
                 alt="Picture of the author"

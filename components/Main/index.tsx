@@ -66,7 +66,7 @@ const Main = () => {
                             size="md" 
                             href={settings.github}
                             css={{
-                                color: 'hsl(50, 100%, 77%)',
+                                color: '$primary',
                                 fontWeight: '$md'
                             }}
                         >
@@ -77,27 +77,25 @@ const Main = () => {
 
                 <Grid columns="3">
                 <div>
-                    <Text as="strong" size="xs">Work Experience</Text> <br />
-                    <Text size="xs">MetLife Seguros <br /> at may Ring 2020 - jul 2020</Text>
-                    <Text size="xs">Codeby <br /> at Ring out 2020 - apr 2022</Text>
-                    <Text size="xs">Hotmart <br /> at Ring may 2022 - current</Text>
+                    <Text as="strong" size="md">Work Experience</Text> <br />
+                    <Text size="sm">Freelancer <br />may 2020 - jul 2020</Text>
+                    <Text size="sm">Codeby <br />out 2020 - apr 2022</Text>
+                    <Text size="sm">Hotmart <br />may 2022 - current</Text>
                 </div>
 
                 <div>
-                    <Text as="strong" size="xs">Dev Stack</Text> <br />
-                    <Text size="xs">React JS</Text>
-                    <Text size="xs">GraphQl</Text>
-                    <Text size="xs">Typescript</Text>
-                    <Text size="xs">SASS</Text>
-                    <Text size="xs">Node</Text>
+                    <Text as="strong" size="md">Dev Stack</Text> <br />
+                    <Text size="sm">React JS</Text>
+                    <Text size="sm">GraphQl</Text>
+                    <Text size="sm">Typescript</Text>
+                    <Text size="sm">Node</Text>
                 </div>
 
                 <div>
-                    <Text as="strong" size="xs">Featured On</Text> <br />
-                    <Text as="a" size="xs" href={settings.featuredOn.iguatemi}>Bosque Digital Iguatemi</Text> <br/>
-                    <Text as="a" size="xs" href={settings.featuredOn.usaflex}>Usaflex</Text> <br/>
-                    <Text as="a" size="xs" href={settings.featuredOn.bblend}>BBlend</Text> <br/>
-                    <Text as="a" size="xs" href={settings.featuredOn.waaw}>Waaw</Text> <br/>
+                    <Text as="strong" size="md">Links</Text> <br />
+                    <Text as="a" size="sm" href={settings.links.github}>Github</Text> <br/>
+                    <Text as="a" size="sm" href={settings.links.linkedin}>LinkedIn</Text> <br/>
+                    <Text as="a" size="sm" href={settings.links.instagram}>Instagram</Text>
                 </div>
                 </Grid>
             </div>

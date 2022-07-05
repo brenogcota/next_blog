@@ -1,0 +1,26 @@
+What if we have a scenario where we need a layout made of 3 columns with the following behavior:
+
+the first column can go anywhere from 100px to a maximum of 300px, depending on the screen of size of the screen
+the second and third columns will take 50% each of the remaining space.
+So, for example, if we have a screen of 700px with then the first column will take 300px, while the next two columns will have 200px each.
+
+The tricky part is defining the size of the first column. Well, this is what the minmax() function is made for. You give it a max and min value and that column / row will not exceed or go below those sizes.
+
+For our case we will have the folwing:
+
+```css
+.container {
+    display: grid;
+    grid-template-columns: minmax(100px, 300px) 1fr 1fr;
+}
+```
+
+Of course, the first value can not be smaller than the second one.
+
+We can apply it also to the rows. So if we want to set a minimum height for the rows we can say:
+
+```css
+.container {
+    grid-auto-rows: minmax(50px, auto);
+}
+```

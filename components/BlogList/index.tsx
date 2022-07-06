@@ -21,7 +21,7 @@ const BlogList = () => {
                     The CSS grid minmax() function explained
                 </Text>
             </Link>
-            <Tag>CSS</Tag> <Tag>React</Tag> <Tag>Javascript</Tag>
+            <Tag>CSS</Tag>
         </Post>
     </Posts>
   );

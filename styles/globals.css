@@ -24,6 +24,10 @@ pre {
   min-height: 100%;
 }
 
+code {
+  white-space: pre-wrap;
+}
+
 @media screen and (min-width: 640px) {
   pre {
     max-width: 600px;

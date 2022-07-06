@@ -22,7 +22,7 @@ const Main = () => {
         <Grid 
             columns="2"
             css={{
-                gridTemplateColumns: '100% 0%',
+                gridTemplateColumns: '90% 0%',
                 '@bp1': {
                     gridTemplateColumns: '50% 30%',
                     columnGap: '15%',

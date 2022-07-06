@@ -1,0 +1,34 @@
+---
+title: A função minmax do grid CSS explicada
+publishedOn: Qua. 6 de jul. 2022
+tags: [CSS]
+---
+
+E se tivermos um cenário em que precisamos de um layout composto por 3 colunas com o seguinte comportamento:
+
+a primeira coluna pode ir de 100px a um máximo de 300px, dependendo do tamanho da tela
+a segunda e terceira colunas ocuparão 50% cada uma do espaço restante.
+Então, por exemplo, se tivermos uma tela de 700px com então a primeira coluna terá 300px, enquanto as próximas duas colunas terão 200px cada.
+
+A parte complicada é definir o tamanho da primeira coluna. Bem, é para isso que a função minmax() é feita. Você atribui um valor máximo e mínimo e essa coluna / linha não excederá ou ficará abaixo desses tamanhos.
+
+Para o nosso caso teremos o seguinte:
+
+```css
+.container {
+    display: grid;
+    grid-template-columns: minmax(100px, 300px) 1fr 1fr;
+}
+```
+
+Claro que o primeiro valor não pode ser menor que o segundo.
+
+Podemos aplicá-lo também às linhas. Então, se quisermos definir uma altura mínima para as linhas, podemos dizer:
+
+```css
+.container {
+    grid-auto-rows: minmax(50px, auto);
+}
+```
+
+#### Referência: [The CSS grid minmax() function explained](http://www.js-craft.io/blog/the-css-grid-minmax-function-explained/)

@@ -1,5 +1,5 @@
-import { useLocale } from "context/locale";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import Text from "ui/Text";
 import { Post, Posts, Tag } from "./stitches";
 
@@ -23,7 +23,7 @@ type Post = {
 }
 
 const BlogList = ({ posts }: Props) => {
-  const { locale } = useLocale()
+  const { locale } = useRouter()
   const localePath = locale ?? ''
   
   return (

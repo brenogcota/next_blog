@@ -14,7 +14,7 @@ const Container = styled('main', {
 });
 
 const Background = styled('div', {
-    backgroundImage:  'url(/blog.jpeg)',
+    backgroundImage:  'url(https://source.unsplash.com/random/?oriental,city,sky,developer,galaxy)',
     backgroundSize: 'cover',
     backgroundRepeat: 'no-repeat',
     width: '100%',

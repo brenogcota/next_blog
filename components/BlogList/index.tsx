@@ -8,21 +8,30 @@ const textCustomStyle = {
     }
 }
 
-const BlogList = () => {
+type Props = {
+    posts?: string[]
+}
+
+const BlogList = ({ posts }: Props) => {
   
   return (
     <Posts>
-        <Post>
-            <Link href="/blog/the-css-grid-minmax-function-explained">
-                <Text 
-                    size="lg"
-                    css={textCustomStyle}
-                >
-                    The CSS grid minmax() function explained
-                </Text>
-            </Link>
-            <Tag>CSS</Tag>
-        </Post>
+        {
+            posts?.map(post => (
+                <Post key={post}>
+                    <Link href="/blog/the-css-grid-minmax-function-explained">
+                        <Text 
+                            size="lg"
+                            css={textCustomStyle}
+                        >
+                            The CSS grid minmax() function explained
+                        </Text>
+                    </Link>
+                    <Tag>CSS</Tag>
+                </Post>
+            ))
+        }
+        
     </Posts>
   );
 }

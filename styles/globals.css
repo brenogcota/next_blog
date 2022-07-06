@@ -24,6 +24,10 @@ pre {
   min-height: 100%;
 }
 
+code {
+  white-space: pre-wrap;
+}
+
 .hljs.language-css {
   font-weight: 600;
 }

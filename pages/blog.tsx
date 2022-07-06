@@ -1,6 +1,8 @@
+import axios from "axios";
 import BlogList from "components/BlogList";
 import { useLocale } from "context/locale";
 import type { NextPage } from "next";
+import { useQuery } from "react-query";
 import { styled } from "stitches.config";
 import Spacer from "ui/Spacer";
 import Text from "ui/Text";
@@ -16,8 +18,18 @@ const Container = styled('main', {
     }
 });
 
-const Home: NextPage = () => {
+type Props = {
+  posts: string[]
+}
+
+const Blog: NextPage<Props> = () => {
   const t = useLocale()
+  const { error, data } = useQuery<Props>(
+    "posts",
+    async () => (await axios.get("/api/posts")).data
+  );
+
+  const posts = data?.posts;
 
   return (
     <Container>
@@ -27,9 +39,9 @@ const Home: NextPage = () => {
 
       <Spacer size="md"/>
 
-      <BlogList />
+      <BlogList posts={posts} />
     </Container>
   );
 };
 
-export default Home;
+export default Blog;

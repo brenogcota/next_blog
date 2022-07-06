@@ -9,7 +9,7 @@ export default async function handler(
   res: NextApiResponse<any>
 ) {
   try {
-    const files = await readdirSync(resolve('./pages/posts'), {
+    const files = await readdirSync(resolve('./pages/posts/en-US'), {
       withFileTypes: true,
     });
 
@@ -18,7 +18,7 @@ export default async function handler(
       if (!file.name.endsWith('.mdx')) return;
 
       const fileContent = readFileSync(
-        join(process.cwd(), 'pages', 'posts', file.name),
+        join(process.cwd(), 'pages', 'posts', 'en-US', file.name),
         'utf-8'
       );
       const { data, content } = matter(fileContent);

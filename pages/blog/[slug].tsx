@@ -28,12 +28,13 @@ const Title = styled('h1', {
 
 const Slug = () => {
   const { query: { slug } } = useRouter()
+  const { locale } = useRouter()
 
   const slugPath = (slug as string)
   const parsedSlug = slugPath?.replaceAll('-', ' ')
 
   const Snippet = dynamic(() => {
-        return import(`pages/posts/${slugPath}.mdx`)
+        return import(`pages/posts/${locale}/${slugPath}.mdx`)
     }, { ssr: false }
   )
 

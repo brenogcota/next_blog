@@ -1,5 +1,5 @@
 import axios from "axios";
-import BlogList from "components/BlogList";
+import BlogList, { Props } from "components/BlogList";
 import { useLocale } from "context/locale";
 import type { NextPage } from "next";
 import { useQuery } from "react-query";
@@ -17,10 +17,6 @@ const Container = styled('main', {
         paddingTop: '10vh'
     }
 });
-
-type Props = {
-  posts: string[]
-}
 
 const Blog: NextPage<Props> = () => {
   const t = useLocale()

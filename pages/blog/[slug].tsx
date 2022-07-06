@@ -1,6 +1,10 @@
+import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router'
+import { useQuery } from 'react-query';
 import { styled } from 'stitches.config';
+import { Tag } from 'components/BlogList/stitches'
+import Text from 'ui/Text';
 
 const Container = styled('main', {
     padding: '$1 $4',
@@ -26,14 +30,30 @@ const Title = styled('h1', {
     textTransform: 'capitalize'
 })
 
+type Props = {
+    post: {
+        title: string,
+        publishedOn: string,
+        tags: string[],
+        author: string
+    },
+    slug: string,
+    preview: string
+}
+
 const Slug = () => {
   const { query: { slug } } = useRouter()
   const { locale } = useRouter()
 
+  const { data } = useQuery<Props>(
+    ["post", slug],
+    async () => (await axios.get(`/api/post/?locale=${locale}&path=${slug}.mdx`)).data
+  );
+
   const slugPath = (slug as string)
   const parsedSlug = slugPath?.replaceAll('-', ' ')
 
-  const Snippet = dynamic(() => {
+  const Post = dynamic(() => {
         return import(`pages/posts/${locale}/${slugPath}.mdx`)
     }, { ssr: false }
   )
@@ -43,9 +63,18 @@ const Slug = () => {
         <Background />
         <Container>
 
-            <Title>{parsedSlug}</Title>
+            <Title>{data?.post.title}</Title>
 
-            <Snippet />
+            {
+                data?.post.tags.map((tag) => (
+                    <Tag variant="primary" key={tag}>{tag}</Tag>
+                ))
+            }
+
+            {' - '} <Text as="span" size="sm">{data?.post.publishedOn}</Text>
+            {' - '} <Text as="span" size="sm">{data?.post.author}</Text>
+
+            <Post />
         </Container>
     </>
   );

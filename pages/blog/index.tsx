@@ -30,7 +30,7 @@ const Blog: NextPage<Props> = () => {
   return (
     <Container>
       <Text as="h1" size="xlg">
-        { t.blog_title }
+        { t.blog_title }.
       </Text>
 
       <Spacer size="md"/>

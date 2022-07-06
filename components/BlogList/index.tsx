@@ -41,10 +41,13 @@ const BlogList = ({ posts }: Props) => {
                                 {post.data.title}
                             </Text>
                         </Link>
-                        <Text size="sm">{post.data.publishedOn}</Text>
+
+                        <Text size="sm">{post.preview}...</Text>
+
                         {
                             post.data.tags.map((tag) => <Tag key={tag}>{tag}</Tag>)
                         }
+                        {' - '} <Text as="span" size="sm">{post.data.publishedOn}</Text>
                     </Post>
                 )
             })

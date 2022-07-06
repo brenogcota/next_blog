@@ -21,5 +21,12 @@ export const Tag = styled('span', {
         position: 'relative',
         top: '-4px',
         color: '$primary'
+    },
+    variants: {
+        variant: {
+            'primary': {
+                color: '$primary'
+            }
+        }
     }
 })

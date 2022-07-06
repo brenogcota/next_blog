@@ -1,3 +1,4 @@
+import { useLocale } from "context/locale";
 import Link from "next/link";
 import Text from "ui/Text";
 import { Post, Posts, Tag } from "./stitches";
@@ -8,28 +9,45 @@ const textCustomStyle = {
     }
 }
 
-type Props = {
-    posts?: string[]
+export type Props = {
+    posts?: Post[]
+}
+type Post = {
+    data: {
+        title: string,
+        publishedOn: string,
+        tags: string[]
+    },
+    slug: string,
+    preview: string
 }
 
 const BlogList = ({ posts }: Props) => {
+  const { locale } = useLocale()
+  const localePath = locale ?? ''
   
   return (
     <Posts>
         {
-            posts?.map(post => (
-                <Post key={post}>
-                    <Link href="/blog/the-css-grid-minmax-function-explained">
-                        <Text 
-                            size="lg"
-                            css={textCustomStyle}
-                        >
-                            The CSS grid minmax() function explained
-                        </Text>
-                    </Link>
-                    <Tag>CSS</Tag>
-                </Post>
-            ))
+            posts?.map(post => {
+                
+                return (
+                    <Post key={post.slug}>
+                        <Link href={`${localePath}/blog/${post.slug}`}>
+                            <Text 
+                                size="lg"
+                                css={textCustomStyle}
+                            >
+                                {post.data.title}
+                            </Text>
+                        </Link>
+                        <Text size="sm">{post.data.publishedOn}</Text>
+                        {
+                            post.data.tags.map((tag) => <Tag key={tag}>{tag}</Tag>)
+                        }
+                    </Post>
+                )
+            })
         }
         
     </Posts>

@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 import rehypeHighlight from 'rehype-highlight';
+import remarkFrontmatter from 'remark-frontmatter';
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
@@ -13,6 +14,7 @@ export default {
           loader: '@mdx-js/loader',
           options: {
             providerImportSource: '@mdx-js/react',
+            remarkPlugins: [remarkFrontmatter],
             rehypePlugins: [rehypeHighlight],
           },
         },

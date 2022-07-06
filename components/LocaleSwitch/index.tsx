@@ -20,6 +20,8 @@ const LocaleSwitch = () => {
   const toggleOpen = () => setIsOpen(!isOpen);
 
   const returnLabel = (label: undefined | string) => labels[label as Locale]
+  const makePath = (label: string) =>
+                    locale && location.pathname.includes(locale) ? (location.pathname + location.search).replace(locale, label) : label
 
   return (
    <>
@@ -36,13 +38,15 @@ const LocaleSwitch = () => {
             <DropdownContent data-isopen={isOpen}>
             {
                     locales?.map((label: string, index) => {
+                        const fullPath = makePath(label)
+
                         return (
                             <Text 
                                 key={`${label}--${index}`}
                                 size="sm"
                                 onClick={toggleOpen}
                             >
-                                <Link href={`${label}/`} locale={false}>
+                                <Link href={`/${fullPath}`} locale={false}>
                                 {returnLabel(label)}
                                 </Link>
                             </Text>

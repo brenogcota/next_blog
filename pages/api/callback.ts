@@ -1,39 +1,26 @@
-import fetch from 'isomorphic-unfetch';
-import querystring from 'querystring';
+import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
+const refresh_token = process.env.REFRESH_TOKEN;
 
 const basic = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
-const TOP_TRACKS = `https://api.spotify.com/v1/me/player/recently-played`;
-const NOW_PLAYING_ENDPOINT = `https://api.spotify.com/v1/me/player/currently-playing`;
 const TOKEN_ENDPOINT = `https://accounts.spotify.com/api/token`;
+let token: string | null = null;
 
-const getAccessToken = async (code: string) => {
-    const response = await fetch(TOKEN_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        Authorization: `Basic ${basic}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: querystring.stringify({
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: `${process.env.HOST}/api/callback`
-      })
-    });
+const getAccessToken = async () => {
+  const response = (await axios.post(TOKEN_ENDPOINT, {
+    grant_type: 'refresh_token',
+    refresh_token,
+  },{
+    headers: {
+      Authorization: `Basic ${basic}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }
+  })).data;
 
-    return response.json();
-};
-  
-const callSpotify = async (endpoint: string, access_token: string) => {
-
-    return await fetch(endpoint, {
-        headers: {
-            Authorization: `Bearer ${access_token}`
-        }
-    });
+  return response.json();
 };
 
 export default async function handler(
@@ -41,34 +28,13 @@ export default async function handler(
     res: NextApiResponse<any>
   ) {
     try {
-      let token;
-      const { code, refresh_token } = req.query;
 
-      token = refresh_token;
-      if (!refresh_token) {
-        const { access_token } = await getAccessToken(code as string);
+      if (!token) {
+        const { access_token } = await getAccessToken();
         token = access_token;
       }
 
-      console.log('[Spotify token] ', token)
-
-      let [tracks, playing] = await Promise.all([ 
-                callSpotify(TOP_TRACKS, token as string),
-                callSpotify(NOW_PLAYING_ENDPOINT, token as string)
-            ])
-
-     
-      if (playing.status !== 204) {
-        [tracks, playing] = await Promise.all([tracks.json(), playing.json()])
-        
-        return res.json({
-            tracks,
-            playing
-        })
-      }
-
-      tracks = await tracks.json()
-      res.json({ tracks, playing: null })
+      res.json({ token })
       
     } catch (error: any) {
       return res.json({ error: error })

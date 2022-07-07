@@ -1,7 +1,5 @@
 import axios from "axios";
 import { useLocale } from "context/locale";
-import useMobileDetect from "hooks/useDeviceDetector";
-import Image from "next/image";
 import { useQuery } from "react-query";
 import { styled } from "stitches.config";
 import Spotify from "ui/Spotify";
@@ -43,17 +41,14 @@ const style = {
   marginRight: '15px'
 }
 
-const Playing = () => {
+const Playing = ({ onlyIcon = false }: { onlyIcon?: boolean }) => {
   const t = useLocale();
-  const { isMobile } = useMobileDetect()
   const { error, data } = useQuery<Playing>(
     "now-playing",
     async () => (await axios.get("/api/now-playing")).data
   );
 
   const playing = data?.song;
-
-  const mobile = isMobile()
 
   if (error) return <></>;
 
@@ -65,7 +60,7 @@ const Playing = () => {
       style={style}
     >
       {
-        mobile ? (
+        onlyIcon ? (
           <>
             <Spotify />
           </>

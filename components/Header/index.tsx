@@ -1,4 +1,5 @@
 import Playing from 'components/Playing';
+import useMobileDetect from 'hooks/useDeviceDetector';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -16,12 +17,13 @@ import { HeaderLayout, Logo } from './stitches';
 
 const Header = () => {
   const { locale } = useRouter()
+  const { isMobile } = useMobileDetect()
 
   return (
     <HeaderLayout>
       <Logo href={`/${locale}`}><span>d</span>brno</Logo>
       <nav>
-        <Playing />
+        <Playing onlyIcon={isMobile()} />
         <LocaleSwitch />
         <Link
           href='/blog'

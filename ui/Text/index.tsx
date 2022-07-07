@@ -31,9 +31,7 @@ type Props = {
     as?: React.ElementType,
     size: string,
     href?: string,
-    rel?: string,
-    target?: string,
-} & React.ComponentProps<typeof Stitch> 
+} & React.ComponentProps<typeof Stitch> | React.AnchorHTMLAttributes<HTMLAnchorElement>
 
 const Text = ({ children, ...rest }: Props) => {
 

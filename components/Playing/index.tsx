@@ -59,7 +59,7 @@ const Playing = () => {
 
   return (
     <a
-      href={playing?.item.external_urls.spotify}
+      href={playing?.is_playing ? playing?.item?.external_urls.spotify : '#'}
       target="_blank"
       rel="noreferrer"
       style={style}

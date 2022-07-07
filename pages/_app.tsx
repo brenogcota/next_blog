@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { darkTheme } from 'stitches.config';
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import { LocaleProvider } from 'context/locale';
+import Footer from 'components/Footer';
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <LocaleProvider>
           <Header />
           <Component {...pageProps} />
+          <Footer />
         </LocaleProvider>
       </ThemeProvider>
     </QueryClientProvider>

@@ -19,6 +19,7 @@ const Home: NextPage = () => {
       <Spacer size="lg" />
       <Spacer size="lg" />
       <Songs />
+      <Spacer size="lg" />
     </div>
   );
 };

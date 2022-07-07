@@ -13,7 +13,7 @@ const Container = styled('section', {
   padding: '$1 0 $1 $4',
 
   '@bp1': {
-      padding: '$2 0 $2 $4',
+      padding: '$2 0 $2 $8',
   }
 });
 

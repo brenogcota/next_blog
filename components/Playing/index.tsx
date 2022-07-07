@@ -50,8 +50,6 @@ const Playing = ({ onlyIcon = false }: { onlyIcon?: boolean }) => {
 
   const playing = data?.song;
 
-  if (error) return <></>;
-
   return (
     <a
       href={playing?.is_playing ? playing?.item?.external_urls.spotify : '#'}

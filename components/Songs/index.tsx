@@ -58,7 +58,7 @@ const Songs = () => {
   const t = useLocale();
   const { error, data } = useQuery<Tracks>(
     "spotify",
-    async () => (await axios.get("/api/spotify")).data
+    async () => (await axios.get("/api/top-tracks")).data
   );
 
   const tracks = data?.tracks?.items;

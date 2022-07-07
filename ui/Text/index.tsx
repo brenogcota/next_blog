@@ -30,8 +30,10 @@ type Props = {
     children: React.ReactNode,
     as?: React.ElementType,
     size: string,
-    href?: string
-} & React.ComponentProps<typeof Stitch>
+    href?: string,
+    rel?: string,
+    target?: string,
+} & React.ComponentProps<typeof Stitch> 
 
 const Text = ({ children, ...rest }: Props) => {
 

@@ -1,3 +1,4 @@
+import Playing from 'components/Playing';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -20,6 +21,7 @@ const Header = () => {
     <HeaderLayout>
       <Logo href={`/${locale}`}><span>d</span>brno</Logo>
       <nav>
+        <Playing />
         <LocaleSwitch />
         <Link
           href='/blog'

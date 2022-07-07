@@ -5,7 +5,6 @@ import type { NextPage } from "next";
 import Spacer from "ui/Spacer";
 
 import Snippets from "components/Snippets";
-import Playing from "components/Playing";
 
 const Home: NextPage = () => {
   return (
@@ -20,7 +19,6 @@ const Home: NextPage = () => {
       <Spacer size="lg" />
       <Spacer size="lg" />
       <Songs />
-      <Playing />
     </div>
   );
 };

@@ -1,12 +1,14 @@
 import axios from "axios";
 import { useLocale } from "context/locale";
+import useMobileDetect from "hooks/useDeviceDetector";
 import Image from "next/image";
 import { useQuery } from "react-query";
 import { styled } from "stitches.config";
+import Spotify from "ui/Spotify";
 import Text from "ui/Text";
 
 type Playing = {
-  playing: {
+  song: {
     timestamp: number;
     progress_ms: number;
     item: {
@@ -17,7 +19,9 @@ type Playing = {
       };
       preview_url: string;
       artists: { name: string }[];
+      external_urls: { spotify: string }
     };
+    is_playing: boolean
   };
 };
 
@@ -32,35 +36,61 @@ const Card = styled("div", {
   minWidth: "280px",
 });
 
+const style = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '5px',
+  marginRight: '15px'
+}
+
 const Playing = () => {
   const t = useLocale();
+  const { isMobile } = useMobileDetect()
   const { error, data } = useQuery<Playing>(
-    "spotify",
-    async () => (await axios.get("/api/spotify")).data
+    "now-playing",
+    async () => (await axios.get("/api/now-playing")).data
   );
 
-  const playing = data?.playing;
+  const playing = data?.song;
 
-  if (error || !playing?.progress_ms) return <></>;
+  const mobile = isMobile()
+
+  if (error) return <></>;
 
   return (
-    <Card>
-      <Text size="sm">{t.playing}</Text>
-      {playing?.item?.album.images[0].url && (
-        <Image
-          src={playing?.item?.album.images[0].url ?? ""}
-          alt={playing?.item?.name}
-          height="100"
-          width="100"
-        />
-      )}
-      <div>
-        <Text size="sm">{playing?.item?.name}</Text>
-        <Text as="span" size="sm">
-          {playing?.item?.artists[0].name}
-        </Text>
-      </div>
-    </Card>
+    <a
+      href={playing?.item.external_urls.spotify}
+      target="_blank"
+      rel="noreferrer"
+      style={style}
+    >
+      {
+        mobile ? (
+          <>
+            <Spotify />
+          </>
+        ) :
+        (
+          <>
+            <Spotify />
+            {
+              playing?.is_playing ? (
+                <>
+                  <Text as="span" size="sm">{playing?.item?.name}</Text>
+                  {' - '}
+                  <Text as="span" size="sm">
+                    {playing?.item?.artists[0].name}
+                  </Text>
+                </>
+              ) :     
+              (
+                <Text as="span" size="sm">Not playing</Text>
+              )
+            }
+          </>
+        )
+      }
+    </a>
   );
 };
 

@@ -16,7 +16,7 @@ const Wrapper = styled("section", {
   },
 });
 
-const NotFound = () => {
+const NotFound = ({ err }: { err?: string }) => {
   return (
     <Wrapper>
       <div className="icon icon-generic"></div>
@@ -34,7 +34,7 @@ const NotFound = () => {
         <li>Go for a walk with your pet</li>
       </ul>
       <Spacer size="sm" />
-      <Text size="sm">ERR_CONNECTION_REFUSED</Text>
+      <Text size="sm">{err || "ERR_CONNECTION_REFUSED"}</Text>
     </Wrapper>
   );
 };

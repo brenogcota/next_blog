@@ -16,6 +16,10 @@ a {
   box-sizing: border-box;
 }
 
+img {
+  max-width: min(calc(100vw - 32px), 920px);
+}
+
 pre {
   background-color: #0d1117;
   padding: 10px 20px;
@@ -28,15 +32,17 @@ code {
   white-space: pre-wrap;
 }
 
-.hljs.language-css {
+.hljs {
   font-weight: 600;
+  color: whitesmoke;
 }
 
 .hljs-selector-class {
   color: greenyellow;
 }
 
-.hljs-attribute {
+.hljs-attribute,
+.hljs-keyword {
   color: indianred;
 }
 
@@ -46,6 +52,19 @@ code {
 
 .hljs-number {
   color: #f8f8f2;
+}
+
+.hljs-title,
+.hljs-property {
+  color: rgba(39, 148, 238, 0.726);
+}
+
+.hljs.language-json .hljs-comment {
+  opacity: 0.6;
+}
+
+.hljs.language-json .hljs-attr {
+  color: bisque;
 }
 
 @media screen and (min-width: 640px) {

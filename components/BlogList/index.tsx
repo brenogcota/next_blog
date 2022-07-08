@@ -39,7 +39,7 @@ const BlogList = ({ posts }: Props) => {
                 </Text>
               </Link>
               <Text size="sm">{post.preview}...</Text>
-              {post.data.tags.map((tag) => (
+              {post.data.tags?.map((tag) => (
                 <Tag key={tag}>{tag}</Tag>
               ))}
               {" - "}{" "}

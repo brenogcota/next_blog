@@ -1,0 +1,36 @@
+---
+title: Avoiding cannot read a property of undefined
+preview: In some cases it is interesting to show a default message in case there may be a property that does not exist in our locale object
+publishedOn: 8 de jul. 2022
+date: 07-08-2022
+tags: [Javascript, Proxy]
+author: Breno G.
+---
+
+In some cases it is interesting to show a default message in case there may be a **property** that does not exist in our locale object.
+Imagine the following, you have two objects containing your translation keys, however, as mortals we end up forgetting some key,
+so in this case, if a user tries to access in your language and this key is not in your object
+
+```json
+// pt-Br
+{
+  "key": "Alguma traducao aqui"
+}
+```
+
+```json
+// en-us
+{
+  "keyy": "same key, misspelled"
+}
+```
+
+If you try to access this key there will be no return, so what would be a possible solution to this? ...**Proxy**
+
+Let me show you an example:
+
+![image](https://user-images.githubusercontent.com/46490801/178080971-0bf8085d-e745-401f-9985-aaa93fd2883e.png)
+
+**Proxy** is a way for you to observe when your object is called, and then take some action.
+
+That way you can check if the object has a **property**, and if not, override the get method to pass a default value

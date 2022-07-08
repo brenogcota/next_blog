@@ -7,6 +7,8 @@ import { Tag } from "components/BlogList/stitches";
 import Text from "ui/Text";
 import Spacer from "ui/Spacer";
 import NotFound from "components/NotFound";
+import Link from "next/link";
+import { useLocale } from "context/locale";
 
 const Container = styled("main", {
   padding: "$1 $4",
@@ -33,6 +35,16 @@ const Title = styled("h1", {
   textTransform: "capitalize",
 });
 
+const Back = styled("div", {
+  position: "absolute",
+  left: 10,
+  top: 100,
+  zIndex: 2,
+  background: "$white",
+  padding: "2px 5px",
+  borderRadius: "999px",
+});
+
 type Props = {
   post: {
     title: string;
@@ -49,6 +61,7 @@ const Slug = () => {
     query: { slug },
   } = useRouter();
   const { locale } = useRouter();
+  const t = useLocale();
 
   const { data } = useQuery<Props>(
     ["post", slug],
@@ -69,9 +82,12 @@ const Slug = () => {
     <>
       {data?.post?.title ? (
         <>
+          <Back>
+            <Link href="/blog">{t.back}</Link>
+          </Back>
           <Background />
           <Container>
-            <Title>{data?.post.title}</Title>
+            <Title>{data?.post?.title}</Title>
             {data?.post?.tags?.map((tag) => (
               <Tag variant="primary" key={tag}>
                 {tag}
@@ -79,18 +95,18 @@ const Slug = () => {
             ))}
             {" - "}{" "}
             <Text as="span" size="sm">
-              {data?.post.publishedOn}
+              {data?.post?.publishedOn}
             </Text>
             {" - "}{" "}
             <Text as="span" size="sm">
-              {data?.post.author}
+              {data?.post?.author}
             </Text>
             <Spacer size="lg" />
             <Post />
           </Container>
         </>
       ) : (
-        <NotFound />
+        <NotFound err="ERR_NOT_TRANSLATED" />
       )}
     </>
   );

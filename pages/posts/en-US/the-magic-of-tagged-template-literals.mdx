@@ -1,5 +1,6 @@
 ---
 title: The Magic Of Tagged Template Literals
+preview: This is a common example when using the styled-components library, if like me, you've already wondered how this is possible, here's the answer.
 publishedOn: 7 de jul. 2022
 date: 07-07-2022
 tags: [Javascript]
@@ -8,14 +9,13 @@ author: Breno G.
 
 import Spacer from "ui/Spacer";
 
-
 Perhaps you have already come across the following snippet:
 
 ```javascript
 const Button = styled.button`
-    color: white;
-    background: blue
-`
+  color: white;
+  background: blue;
+`;
 ```
 
 This is a common example when using the [styled-components](https://styled-components.com/) library, if like me, you've already wondered how this is possible, here's the answer.
@@ -35,28 +35,25 @@ const styled = {
 The function(strings, ...vals) {} is the tagged function that will recieve the CSS styling code in the strings param and the values in it in the vals param.
 
 ```js
-const Button = styled.button
-const Div = styled.div
+const Button = styled.button;
+const Div = styled.div;
 ```
 
 <Spacer size="md" />
 
 ## Build your own styled-components
 
-![build-your-own-styled-componets](https://res.cloudinary.com/practicaldev/image/fetch/s--dQI7Dfeb--/c_imagga_scale,f_auto,fl_progressive,h_420,q_auto,w_1000/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/2e8oaazke87mk949abjr.png)
+![build-your-own-styled-componets](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/2e8oaazke87mk949abjr.png)
 
 First, create a styled object and an array to hold HTML tag names.
 
 ```javascript
-const tags = [
-    "button",
-    "div"
-]
-const styled = {}
+const tags = ["button", "div"];
+const styled = {};
 
-tags.forEach(tag => {
-    styled[tag] = genComponentStyle(tag)
-})
+tags.forEach((tag) => {
+  styled[tag] = genComponentStyle(tag);
+});
 ```
 
 **tag** is the name of the HTML tag in the tags array.
@@ -69,25 +66,25 @@ To implement the **genComponentStyle** function:
 
 ```js
 function genComponentStyle(tag) {
-    return function(strings, ...vals) {
-        return class extends Component {
-            constructor(props) {
-                super(props)
-                this.style = {}
-            }
-            componentWillMount() {
-                this.style = computeStyle(this.props, strings, vals)
-            }
-            componentWillUpdate(props) {
-                this.style = computeStyle(props, strings, vals)
-            }
-            render() {
-                return (
-                    createElement(tag, { style: this.style, ...this.props }, [...this.props.children])
-                )
-            }
-        }        
-    }
+  return function (strings, ...vals) {
+    return class extends Component {
+      constructor(props) {
+        super(props);
+        this.style = {};
+      }
+      componentWillMount() {
+        this.style = computeStyle(this.props, strings, vals);
+      }
+      componentWillUpdate(props) {
+        this.style = computeStyle(props, strings, vals);
+      }
+      render() {
+        return createElement(tag, { style: this.style, ...this.props }, [
+          ...this.props.children,
+        ]);
+      }
+    };
+  };
 }
 ```
 
@@ -98,6 +95,3 @@ This is **not** a complete example, and you can find more about this implementat
 References:
 
 [build your own styled components](https://dev.to/burhanuday/build-your-own-styled-components-11pg)
-
-
-

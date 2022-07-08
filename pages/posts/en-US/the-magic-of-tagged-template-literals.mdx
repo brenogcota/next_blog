@@ -1,0 +1,103 @@
+---
+title: The Magic Of Tagged Template Literals
+publishedOn: 7 de jul. 2022
+date: 07-07-2022
+tags: [Javascript]
+author: Breno G.
+---
+
+import Spacer from "ui/Spacer";
+
+
+Perhaps you have already come across the following snippet:
+
+```javascript
+const Button = styled.button`
+    color: white;
+    background: blue
+`
+```
+
+This is a common example when using the [styled-components](https://styled-components.com/) library, if like me, you've already wondered how this is possible, here's the answer.
+
+Well, this is possible thanks to the use of **tagged template literals**, which is nothing more than a javascript function.
+
+See how you can build your own styled-components with this feature:
+
+```js
+const styled = {
+    button: function(strings, ...vals) {},
+    div: function(strings, ...vals) {},
+    ...
+}
+```
+
+The function(strings, ...vals) {} is the tagged function that will recieve the CSS styling code in the strings param and the values in it in the vals param.
+
+```js
+const Button = styled.button
+const Div = styled.div
+```
+
+<Spacer size="md" />
+
+## Build your own styled-components
+
+![build-your-own-styled-componets](https://res.cloudinary.com/practicaldev/image/fetch/s--dQI7Dfeb--/c_imagga_scale,f_auto,fl_progressive,h_420,q_auto,w_1000/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/2e8oaazke87mk949abjr.png)
+
+First, create a styled object and an array to hold HTML tag names.
+
+```javascript
+const tags = [
+    "button",
+    "div"
+]
+const styled = {}
+
+tags.forEach(tag => {
+    styled[tag] = genComponentStyle(tag)
+})
+```
+
+**tag** is the name of the HTML tag in the tags array.
+
+<Spacer size="md" />
+
+With the above code, the styled object will have the HTML tags in the tags array as properties. Their values should be a function — the tagged function that will receive the template literal and values in it. The **genComponentStyle** function is called on every **tag**. **genComponentStyle** provides a closure over the tag name, and it must return a React component.
+
+To implement the **genComponentStyle** function:
+
+```js
+function genComponentStyle(tag) {
+    return function(strings, ...vals) {
+        return class extends Component {
+            constructor(props) {
+                super(props)
+                this.style = {}
+            }
+            componentWillMount() {
+                this.style = computeStyle(this.props, strings, vals)
+            }
+            componentWillUpdate(props) {
+                this.style = computeStyle(props, strings, vals)
+            }
+            render() {
+                return (
+                    createElement(tag, { style: this.style, ...this.props }, [...this.props.children])
+                )
+            }
+        }        
+    }
+}
+```
+
+This is **not** a complete example, and you can find more about this implementation in the [references]().
+
+<Spacer size="lg" />
+
+References:
+
+[build your own styled components](https://dev.to/burhanuday/build-your-own-styled-components-11pg)
+
+
+

@@ -1,6 +1,7 @@
 ---
 title: The CSS grid minmax function explained
-publishedOn: Qua. 6 de jul. 2022
+publishedOn: 6 de jul. 2022
+date: 07-07-2022
 tags: [CSS]
 author: Breno G.
 ---
@@ -17,8 +18,8 @@ For our case we will have the folwing:
 
 ```css
 .container {
-    display: grid;
-    grid-template-columns: minmax(100px, 300px) 1fr 1fr;
+  display: grid;
+  grid-template-columns: minmax(100px, 300px) 1fr 1fr;
 }
 ```
 
@@ -28,7 +29,7 @@ We can apply it also to the rows. So if we want to set a minimum height for the 
 
 ```css
 .container {
-    grid-auto-rows: minmax(50px, auto);
+  grid-auto-rows: minmax(50px, auto);
 }
 ```
 

@@ -1,0 +1,184 @@
+---
+title: Practical React Query
+publishedOn: Sex. 15 de jul. 2022
+tags: [React, Javascript, React Query]
+author: TkDodo
+---
+
+Esse post faz parte do [TkDodo's blog](https://tkdodo.eu/blog/practical-react-query) e é uma tradução para o Português.
+
+Quando o GraphQL e especialmente o [Apollo Client](https://www.apollographql.com/docs/react/) se tornaram populares em ca. 2018, houve muito barulho sobre a substituição completa do redux, e a pergunta [O Redux já está morto?](https://dev.to/markerikson/redux---not-dead-yet-1d9k) tem sido muito pedido.
+
+Lembro-me claramente de não entender do que se tratava. Por que alguma biblioteca de busca de dados substituiria seu gerenciador de estado global? O que um tem a ver com o outro?
+
+Fiquei com a impressão de que clientes GraphQL como o Apollo apenas buscariam os dados para você, semelhante ao que, por exemplo, [axios](https://github.com/axios/axios) faz para REST, e que você obviamente ainda precisaria de alguma maneira de tornar esses dados acessíveis ao seu aplicativo.
+
+Eu não poderia estar mais errado.
+
+## Client State vs. Server State
+
+O que o Apollo oferece não é apenas a capacidade de descrever quais dados você deseja e buscar esses dados, mas também vem com um cache para os dados do servidor. Isso significa que você pode usar o mesmo gancho useQuery em vários componentes e ele buscará os dados apenas uma vez e, posteriormente, os retornará do cache.
+
+Isso soa muito familiar com o que nós, e provavelmente muitas outras equipes também, temos usado redux principalmente para: Buscar dados do servidor e disponibilizá-los em todos os lugares.
+
+Portanto, parece que sempre tratamos esse estado do servidor como qualquer outro estado do cliente. Exceto que quando se trata do estado do servidor (pense: uma lista de artigos que você busca, os detalhes de um usuário que você deseja exibir, ...), seu aplicativo não é o proprietário. Nós o pegamos emprestado apenas para exibir a versão mais recente dele na tela para o usuário. É o servidor que possui os dados.
+
+Para mim, isso introduziu uma mudança de paradigma em como pensar sobre dados. Se pudermos aproveitar o cache para exibir dados que não possuímos, não resta muito do estado real do cliente que também precisa ser disponibilizado para todo o aplicativo. Isso me fez entender por que muitos pensam que o Apollo pode substituir o redux em muitos casos.
+
+## React Query
+
+Eu nunca tive a chance de usar GraphQL. Temos uma API REST existente, não temos problemas com over-fetching, apenas funciona, etc. Claramente, não há pontos problemáticos suficientes para garantirmos uma mudança, especialmente porque você também precisa se adaptar o backend, que não é tão simples.
+
+No entanto, eu ainda invejava a simplicidade de como a busca de dados pode parecer no frontend, incluindo o tratamento de estados de carregamento e erro. Se ao menos houvesse algo semelhante no React para APIs REST...
+
+Digite [React Query](https://tanstack.com/query/v4/?from=reactQueryV3&original=https://react-query-v3.tanstack.com/).
+
+Feito pelo open sourcerer [Tanner Linsley](https://github.com/tannerlinsley) no final de 2019, o React Query pega as partes boas do Apollo e as traz para REST. Ele funciona com qualquer função que retorne uma promessa e adote a estratégia de armazenamento em cache obsoleta enquanto revalida. A biblioteca opera em padrões sensatos que tentam manter seus dados o mais atualizados possível e, ao mesmo tempo, mostrar dados ao usuário o mais cedo possível, fazendo com que pareça quase instantâneo às vezes e, assim, proporcionando uma ótima UX. Além disso, também é muito flexível e permite personalizar várias configurações para quando os padrões não forem suficientes.
+
+Este artigo não será uma introdução ao React Query.
+
+Eu acho que os documentos são ótimos para explicar Guias e Conceitos, há vídeos de várias palestras que você pode assistir, e Tanner tem um curso [React Query Essentials](https://learn.tanstack.com/) que você pode fazer se quiser se familiarizar com a biblioteca.
+
+Quero focar mais em algumas dicas práticas que vão além dos documentos, que podem ser úteis quando você já estiver trabalhando com a biblioteca. Essas são coisas que aprendi nos últimos dois meses, quando não apenas estava usando ativamente a biblioteca no trabalho, mas também me envolvi na comunidade React Query, respondendo perguntas no Discord e nas discussões do GitHub.
+
+## Os Padrões explicados
+
+Acredito que os React Query [Defaults](https://tanstack.com/query/v4/?from=reactQueryV3&original=https://react-query-v3.tanstack.com/) são muito bem escolhidos, mas podem te pegar desprevenido de vez em quando, principalmente no início.
+
+Primeiro de tudo: React Query não invoca o queryFn em cada re-renderização, mesmo com o staleTime padrão de zero. Seu aplicativo pode renderizar novamente por vários motivos a qualquer momento, portanto, buscar sempre seria insano!
+
+> Sempre codifique para re-renderizações, e muitas delas. Eu gosto de chamar isso de resiliência de renderização.
+    — Tanner Linsley
+
+Se você vir um refetch que não está esperando, provavelmente é porque você acabou de focar a janela e o React Query está fazendo um refetchOnWindowFocus , que é um ótimo recurso para produção: Se o usuário for para uma guia diferente do navegador e depois voltar ao seu aplicativo, uma nova busca em segundo plano será acionada automaticamente e os dados na tela serão atualizados se algo tiver mudado no servidor nesse meio tempo. Tudo isso acontece sem que um spinner de carregamento seja mostrado e seu componente não será renderizado novamente se os dados forem os mesmos que você tem atualmente no cache.
+
+Durante o desenvolvimento, isso provavelmente será acionado com mais frequência, especialmente porque o foco entre o Browser DevTools e seu aplicativo também causará uma busca, portanto, esteja ciente disso.
+
+Em segundo lugar, parece haver um pouco de confusão entre cacheTime e staleTime , então deixe-me tentar esclarecer isso:
+
+- StaleTime: a duração até a transição de uma consulta de recente para obsoleta. Enquanto a consulta estiver atualizada, os dados sempre serão lidos apenas do cache - nenhuma solicitação de rede acontecerá! Se a consulta estiver obsoleta (que por padrão é: instantaneamente), você ainda obterá dados do cache, mas uma nova busca em segundo plano pode ocorrer [sob certas condições](https://tanstack.com/query/v4/?from=reactQueryV3&original=https://react-query-v3.tanstack.com/) .
+- CacheTime: A duração até que as consultas inativas sejam removidas do cache. O padrão é 5 minutos. As consultas passam para o estado inativo assim que não houver observadores registrados, portanto, quando todos os componentes que usam essa consulta forem desmontados.
+
+Na maioria das vezes, se você deseja alterar uma dessas configurações, é o staleTime que precisa ser ajustado. Eu raramente precisei adulterar o cacheTime . Há uma boa explicação por [exemplo](https://tanstack.com/query/v4/?from=reactQueryV3&original=https://react-query-v3.tanstack.com/#a-detailed-caching-example) nos documentos também.
+
+## Use o React Query DevTools
+
+Isso o ajudará imensamente a entender o estado em que uma consulta está. O DevTools também informará quais dados estão atualmente no cache, para que você tenha mais facilidade na depuração. Além disso, descobri que isso ajuda a limitar sua conexão de rede no navegador DevTools se você quiser reconhecer melhor as novas buscas em segundo plano, já que os servidores dev geralmente são bem rápidos.
+
+## Trate a chave de consulta como uma matriz de dependência
+
+Estou me referindo ao array de dependências do gancho useEffect aqui, com o qual suponho que você esteja familiarizado.
+
+Por que esses dois são parecidos?
+
+Porque o React Query acionará uma nova busca sempre que a chave de consulta for alterada. Então, quando passamos um parâmetro de variável para nosso queryFn , quase sempre queremos buscar dados quando esse valor muda. Em vez de orquestrar efeitos complexos para acionar manualmente uma nova busca, podemos utilizar a chave de consulta:
+
+```Javascript
+// feature/todos/queries.ts
+type State = 'all' | 'open' | 'done'
+type Todo = {
+  id: number
+  state: State
+}
+type Todos = ReadonlyArray<Todo>
+
+const fetchTodos = async (state: State): Promise<Todos> => {
+  const response = await axios.get(`todos/${state}`)
+  return response.data
+}
+
+export const useTodosQuery = (state: State) =>
+  useQuery(['todos', state], () => fetchTodos(state))
+```
+
+Aqui, imagine que nossa interface do usuário exiba uma lista de todos junto com uma opção de filtro. Teríamos algum estado local para armazenar essa filtragem e, assim que o usuário alterasse sua seleção, atualizaríamos esse estado local e o React Query acionaria automaticamente a rebusca para nós, porque a chave de consulta muda. Assim, estamos mantendo a seleção de filtro do usuário em sincronia com a função de consulta, que é muito semelhante ao que um array de dependência representa para useEffect. Acho que nunca passei uma variável para o queryFn que também não fazia parte do queryKey .
+
+## Uma nova entrada de cache
+
+Como a chave de consulta é usada como chave para o cache, você obterá uma nova entrada de cache quando alternar de 'tudo' para 'concluído', e isso resultará em um estado de carregamento difícil (provavelmente mostrando um spinner de carregamento) quando você mudar pela primeira vez. Isso certamente não é o ideal, então você pode usar a opção keepPreviousData para esses casos ou, se possível, pré-preencher a entrada de cache recém-criada com initialData . O exemplo acima é perfeito para isso, pois podemos fazer uma pré-filtragem do lado do cliente em nossos todos:
+
+```Javascript
+type State = 'all' | 'open' | 'done'
+type Todo = {
+  id: number
+  state: State
+}
+type Todos = ReadonlyArray<Todo>
+
+const fetchTodos = async (state: State): Promise<Todos> => {
+  const response = await axios.get(`todos/${state}`)
+  return response.data
+}
+
+export const useTodosQuery = (state: State) =>
+  useQuery(['todos', state], () => fetchTodos(state), {
+    initialData: () => {
+      const allTodos = queryClient.getQueryData<Todos>(['todos', 'all'])
+      const filteredData =
+        allTodos?.filter((todo) => todo.state === state) ?? []
+
+      return filteredData.length > 0 ? filteredData : undefined
+    },
+  })
+```
+
+Agora, toda vez que o usuário alternar entre os estados, se ainda não tivermos dados, tentamos preenchê-lo com dados do cache 'todos'. Podemos mostrar instantaneamente os todos 'feitos' que temos para o usuário, e ele ainda verá a lista atualizada assim que a busca em segundo plano terminar. Observe que, antes da v3, você também precisaria definir a propriedade initialStale para realmente acionar uma busca em segundo plano.
+
+Eu acho que isso é uma grande melhoria de ux para apenas algumas linhas de código.
+
+## Mantenha o estado do servidor e do cliente separados
+
+Isso anda de mãos dadas com put-props-to-use-state , um artigo que escrevi no mês passado: Se você obtiver dados de useQuery , tente não colocar esses dados no estado local. A principal razão é que você opta implicitamente por todas as atualizações em segundo plano que o React Query faz para você, porque o estado "copiar" não será atualizado com ele.
+
+Isso é bom se você quiser, por exemplo, buscar alguns valores padrão para um formulário e renderizar seu formulário assim que tiver dados. É muito improvável que as atualizações em segundo plano produzam algo novo e, mesmo que seu formulário já tenha sido inicializado. Portanto, se você fizer isso de propósito, certifique-se de não disparar novas buscas em segundo plano desnecessárias definindo staleTime :
+
+```Javascript
+const App = () => {
+  const { data } = useQuery('key', queryFn, { staleTime: Infinity })
+
+  return data ? <MyForm initialData={data} /> : null
+}
+
+const MyForm = ({ initialData} ) => {
+  const [data, setData] = React.useState(initialData)
+  ...
+}
+```
+
+Esse conceito será um pouco mais difícil de seguir quando você exibir dados que também deseja permitir que o usuário edite, mas tem muitas vantagens. Eu preparei um pequeno exemplo de codesandbox:
+
+![image](https://user-images.githubusercontent.com/106157862/179273388-a3a29491-c229-4ed3-a58c-77dc5a8541f0.png)
+
+A parte importante desta demonstração é que nunca colocamos o valor que obtemos do React Query no estado local. Isso garante que sempre vejamos os dados mais recentes, porque não há uma "cópia" local deles.
+
+## A opção habilitada é muito poderosa
+
+O gancho useQuery tem muitas opções que você pode passar para personalizar seu comportamento, e a opção enabled é muito poderosa que permite fazer muitas coisas legais (trocadilhos). Aqui está uma pequena lista de coisas que conseguimos realizar graças a esta opção:
+
+- Consultas dependentes
+    Buscam dados em uma consulta e executam uma segunda consulta somente depois de obtermos os dados com êxito da primeira consulta.
+- Ativar e desativar
+    consultas Temos uma consulta que pesquisa dados regularmente graças a refetchInterval , mas podemos pausá-la temporariamente se um Modal estiver aberto para evitar atualizações na parte de trás da tela.
+- Aguarde a entrada do usuário
+    Tenha alguns critérios de filtro na chave de consulta, mas desative-o enquanto o usuário não tiver aplicado seus filtros.
+- Desabilite uma consulta após alguma entrada do usuário,
+    por exemplo, se tivermos um valor de rascunho que deve ter precedência sobre os dados do servidor. Veja o exemplo acima.
+
+## Não use o queryCache como um gerenciador de estado local
+
+Se você adulterar o queryCache ( queryClient.setQueryData ), deve ser apenas para atualizações otimistas ou para gravar dados que você recebe do back-end após uma mutação. Lembre-se de que cada nova busca em segundo plano pode substituir esses dados, portanto, use outra coisa para o estado local.
+
+## Crie Hooks personalizados
+
+Mesmo que seja apenas para envolver uma chamada useQuery , criar um gancho personalizado geralmente compensa porque:
+
+- Você pode manter a busca de dados real fora da interface do usuário, mas co-localizada com sua chamada useQuery .
+- Você pode manter todos os usos de uma chave de consulta (e potencialmente definições de tipo) em um arquivo.
+- Se você precisar ajustar algumas configurações ou adicionar alguma transformação de dados, poderá fazer isso em um só lugar.
+
+Você já viu um exemplo disso nas [consultas de todos acima](https://tkdodo.eu/blog/practical-react-query#treat-the-query-key-like-a-dependency-array).
+
+
+--------------------------------------------------------------------------------------------------------------------------
+
+Esse post faz parte do [TkDodo's blog](https://tkdodo.eu/blog/practical-react-query) e é uma tradução para o Português.

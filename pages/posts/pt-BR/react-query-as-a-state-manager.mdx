@@ -1,0 +1,210 @@
+---
+title: React Query como um gerenciador de estado
+publishedOn: Sex. 15 de jul. 2022
+tags: [React, Javascript, React Query]
+author: TkDodo
+---
+
+Esse post faz parte do [TkDodo's blog](https://tkdodo.eu/blog/) e é uma tradução para o Português.
+
+O React Query é amado por muitos por simplificar drasticamente a busca de dados em aplicativos React. Portanto, pode ser uma surpresa se eu lhe disser que o React Query na verdade NÃO é uma biblioteca de busca de dados.
+
+Ele não busca nenhum dado para você e apenas um conjunto muito pequeno de recursos está diretamente vinculado à rede (como o OnlineManager , refetchOnReconnect ou retrying offlinemutation ). Isso também se torna aparente quando você escreve sua primeira queryFn e precisa usar algo para realmente obter os dados, como fetch , axios , ky ou até graphql-request .
+
+Então, se o React Query não é uma biblioteca de busca de dados, o que é?
+
+## Um gerenciador de estado assíncrono
+
+React Query é um gerenciador de estado assíncrono. Ele pode gerenciar qualquer forma de estado assíncrono - fica feliz desde que receba uma Promise. Sim, 
+na maioria das vezes, produzimos Promises por meio de busca de dados, então é aí que brilha. Mas ele faz mais do que apenas lidar com estados de 
+carregamento e erro para você. É um "gerente de estado global" adequado, real. O QueryKey identifica exclusivamente sua consulta, portanto, desde que você 
+chame a consulta com a mesma chave em dois locais diferentes, eles obterão os mesmos dados. Isso pode ser melhor abstraído com um gancho personalizado para
+que não tenhamos que acessar a função de busca de dados real duas vezes:
+
+```javascript
+export const useTodos = () => useQuery(['todos'], fetchTodos)
+
+function ComponentOne() {
+  const { data } = useTodos()
+}
+
+function ComponentTwo() {
+  // ✅ will get exactly the same data as ComponentOne
+  const { data } = useTodos()
+}
+
+const queryClient = new QueryClient()
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ComponentOne />
+      <ComponentTwo />
+    </QueryClientProvider>
+  )
+}
+```
+
+Esses componentes podem estar em qualquer lugar em sua árvore de componentes. Desde que estejam sob o mesmo QueryClientProvider , eles obterão os mesmos 
+dados. O React Query também desduplicará solicitações que ocorreriam ao mesmo tempo, portanto, no cenário acima, mesmo que dois componentes solicitem os 
+mesmos dados, haverá apenas uma solicitação de rede.
+
+## Uma ferramenta de sincronização de dados
+
+Como o React Query gerencia o estado assíncrono (ou, em termos de busca de dados: estado do servidor), ele assume que o aplicativo front-end não "possui" os dados. E isso está totalmente certo. Se exibirmos dados na tela que buscamos de uma API, exibiremos apenas um "instantâneo" desses dados - a versão de como eles eram quando os recuperamos. Então a pergunta que temos que nos fazer é:
+
+Esses dados ainda são precisos depois de buscá-los?
+
+A resposta depende totalmente do domínio do nosso problema. Se buscarmos uma postagem no Twitter com todas as curtidas e comentários, provavelmente ela ficará desatualizada (obsoleta) rapidamente. Se buscarmos taxas de câmbio atualizadas diariamente, bem, nossos dados serão bastante precisos por algum tempo, mesmo sem rebuscar.
+
+O React Query fornece os meios para sincronizar nossa visão com o proprietário real dos dados - o backend. E, ao fazer isso, erra por atualizar com frequência, em vez de não atualizar com frequência suficiente.
+
+## Antes do React Query
+
+Duas abordagens para a busca de dados eram bastante comuns antes de bibliotecas como React Query virem em socorro:
+
+- buscar uma vez, distribuir globalmente, raramente atualizar
+  Isso é praticamente o que eu tenho feito muito com redux. Em algum lugar, despacho uma ação que inicia a busca de dados, geralmente na montagem do aplicativo. Depois de obter os dados, nós os colocamos em um gerenciador de estado global para que possamos acessá-los em qualquer lugar em nosso aplicativo. Afinal, muitos componentes precisam de acesso à nossa lista de tarefas. Rebuscamos esses dados? Não, nós o "baixamos", então já o temos, por que deveríamos? Talvez se dispararmos uma solicitação POST para o back-end, ele será gentil o suficiente para nos devolver o estado "mais recente". Se você quiser algo mais preciso, você sempre pode recarregar a janela do navegador...
+
+- buscar em cada montagem, mantê-lo local
+  Às vezes, também podemos pensar que colocar dados no estado global é "demais". Nós só precisamos dele neste Diálogo Modal, então por que não buscá-lo bem na hora em que o Diálogo é aberto. Você sabe o que fazer: useEffect , array de dependência vazio (jogue um eslint-disable nele se ele gritar), setLoading(true) e assim por diante ... os dados. O que mais podemos fazer, o estado local se foi...
+
+
+Ambas as abordagens são bastante sub-ótimas. O primeiro não atualiza nosso cache local com frequência suficiente, enquanto o segundo potencialmente busca novamente com muita frequência e também tem um ux questionável porque os dados não estão lá quando buscamos pela segunda vez.
+
+Então, como o React Query aborda esses problemas?
+
+## Stale While Revalidate
+
+Você já deve ter ouvido isso antes, é o mecanismo de cache que o React Query usa. Não é nada novo - você pode ler sobre as extensões de controle de cache HTTP para conteúdo obsoleto aqui . Em resumo, isso significa que o React Query armazenará dados em cache para você e os fornecerá quando você precisar, mesmo que esses dados não estejam mais atualizados (obsoletos). O princípio é que dados obsoletos são melhores do que nenhum dado, porque nenhum dado geralmente significa um spinner de carregamento, e isso será percebido como "lento" pelos usuários. Ao mesmo tempo, ele tentará realizar uma nova busca em segundo plano para revalidar esses dados.
+
+## Buscas inteligentes
+
+A invalidação de cache é muito difícil, então quando você decide que é hora de solicitar novos dados ao back-end? Certamente não podemos fazer isso toda vez que um componente que chama useQuery é renderizado novamente. Isso seria insanamente caro, mesmo para os padrões modernos.
+
+Portanto, o React Query está sendo inteligente e escolhe pontos estratégicos para acionar um refetch. Pontos que parecem ser um bom indicador para dizer: "Sim, agora seria um bom momento para obter alguns dados". Estes são:
+
+- refetchOnMount
+  Sempre que um novo componente que chama useQuery é montado, o React Query fará uma revalidação.
+
+- refetchOnWindowFocus
+  Sempre que você focar na guia do navegador, haverá uma nova busca. Este é o meu momento favorito para fazer uma revalidação, mas muitas vezes é mal interpretado. Durante o desenvolvimento, mudamos de guia do navegador com muita frequência, então podemos perceber isso como "demais". Em produção, no entanto, provavelmente indica que um usuário que deixou nosso aplicativo aberto em uma guia agora volta de verificar e-mails ou ler o twitter. Mostrar a eles as atualizações mais recentes faz todo o sentido nessa situação.
+
+- refetchOnReconnect
+  Se você perder sua conexão de rede e recuperá-la, também é um bom indicador para revalidar o que você vê na tela.
+  
+Por fim, se você, como desenvolvedor do seu aplicativo, souber um bom momento, poderá invocar uma invalidação manual por meio de queryClient.invalidateQueries . Isso é muito útil depois que você executa uma mutação.
+
+## Deixando o React Query fazer sua mágica
+
+Eu amo esses padrões , mas como eu disse antes, eles são voltados para manter as coisas atualizadas, não para minimizar a quantidade de solicitações de rede. Isso ocorre principalmente porque o padrão staleTime é zero , o que significa que toda vez que você, por exemplo, monta uma nova instância de componente, você obterá uma nova busca em segundo plano. Se você fizer muito isso, especialmente com montagens em curta sucessão que não estão no mesmo ciclo de renderização, poderá ver muitas buscas na guia de rede. Isso porque o React Query não pode desduplicar em tais situações:
+
+```javascript
+function ComponentOne() {
+  const { data } = useTodos()
+
+  if (data) {
+    // ⚠️ mounts conditionally, only after we already have data
+    return <ComponentTwo />
+  }
+  return <Loading />
+}
+
+function ComponentTwo() {
+  // ⚠️ will thus trigger a second network request
+  const { data } = useTodos()
+}
+
+const queryClient = new QueryClient()
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ComponentOne />
+    </QueryClientProvider>
+  )
+}
+```
+
+> O que está acontecendo aqui, acabei de buscar meus dados 2 segundos atrás, por que outra solicitação de rede está acontecendo? Isso é uma loucura!
+
+  — Reação legítima ao usar React Query pela primeira vez
+  
+
+Nesse ponto, pode parecer uma boa ideia passar os dados via props ou colocá-los no React Context para evitar a perfuração de props, ou apenas desligar os sinalizadores refetchOnMount / refetchOnWindowFocus porque toda essa busca é demais !
+
+Geralmente, não há nada de errado em passar dados como adereços. É a coisa mais explícita que você pode fazer e funcionaria bem no exemplo acima. Mas e se ajustarmos um pouco o exemplo para uma situação mais real:
+
+```javascript
+function ComponentOne() {
+  const { data } = useTodos()
+  const [showMore, toggleShowMore] = React.useReducer(
+    (value) => !value,
+    false
+  )
+
+  // yes, I leave out error handling, this is "just" an example
+  if (!data) {
+    return <Loading />
+  }
+
+  return (
+    <div>
+      Todo count: {data.length}
+      <button onClick={toggleShowMore}>Show More</button>
+      // ✅ show ComponentTwo after the button has been clicked
+      {showMore ? <ComponentTwo /> : null}
+    </div>
+  )
+}
+```
+
+
+Neste exemplo, nosso segundo componente (que também depende dos dados de tarefas) só será montado depois que o usuário clicar em um botão. Agora imagine que nosso usuário clique nesse botão depois de alguns minutos. Uma nova busca em segundo plano não seria legal nessa situação, para que possamos ver os valores atualizados de nossa lista de tarefas?
+
+Isso não seria possível se você escolhesse qualquer uma das abordagens acima mencionadas que basicamente ignoram o que o React Query deseja fazer.
+
+Então, como podemos ter nosso bolo e comê-lo também?
+
+## Personalizar staleTime
+
+Talvez você já tenha adivinhado a direção em que quero ir: A solução seria definir staleTime para um valor com o qual você se sinta confortável para seu caso de uso específico. A principal coisa a saber é:
+
+![image](https://user-images.githubusercontent.com/106157862/179303091-2734e6f1-6d8c-4545-9c66-f30f9e9c2ff1.png)
+
+
+Também não há valor "correto" para staleTime . Em muitas situações, os padrões funcionam muito bem. Pessoalmente, gosto de definir um mínimo de 20 segundos para desduplicar solicitações nesse período de tempo, mas depende totalmente de você.
+
+## Bônus: usando setQueryDefaults
+
+Desde a v3, o React Query suporta uma ótima maneira de definir valores padrão por Query Key via QueryClient.setQueryDefaults . Portanto, se você seguir os padrões descritos em #8: Effective React Query Keys , você pode definir padrões para qualquer granularidade que desejar, porque passar Query Keys para setQueryDefaults segue a correspondência parcial padrão que, por exemplo, Query Filters também possui:
+
+```javascript
+cópia desetQueryDefaults: copie o código para a área de transferência
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // ✅ globally default to 20 seconds
+      staleTime: 1000 * 20,
+    },
+  },
+})
+
+// 🚀 everything todo-related will have a 1 minute staleTime
+queryClient.setQueryDefaults(todoKeys.all, { staleTime: 1000 * 60 })
+```
+
+## Uma nota sobre a separação de interesses
+
+É uma preocupação aparentemente legítima que adicionar ganchos como useQuery a componentes de todas as camadas em seu aplicativo misture as responsabilidades do que um componente deve fazer. Nos velhos tempos , o padrão de componente "smart-vs-dumb", "container-vs-presentational" era onipresente. Ele prometia separação clara, desacoplamento, reutilização e facilidade de teste porque os componentes de apresentação apenas "obteriam adereços". Também levou a muitas perfurações de suporte, clichê, padrões difíceis de digitar estaticamente (👋 componentes de ordem superior) e divisões arbitrárias de componentes.
+
+Isso mudou muito quando os ganchos apareceram. Agora você pode useContext , useQuery ou useSelector (se estiver usando redux) em qualquer lugar e, assim, injetar dependências em seu componente. Você pode argumentar que isso torna seu componente mais acoplado. Você também pode dizer que agora é mais independente porque você pode movê-lo livremente em seu aplicativo e ele funcionará sozinho.
+
+Eu recomendo totalmente assistir Hooks, HOCS, and Tradeoffs (⚡️) / React Boston 2019 pelo mantenedor do redux Mark Erikson .
+
+Em resumo, tudo são compensações. Nao tem almoço gratis. O que pode funcionar em uma situação pode não funcionar em outras. Um componente Button reutilizável deve fazer a busca de dados? Provavelmente não. Faz sentido dividir seu Dashboard em um DashboardView e um DashboardContainer que transmite dados? Também, provavelmente não. Portanto, cabe a nós conhecer as compensações e aplicar a ferramenta certa para o trabalho certo.
+
+## Aprendizado
+
+O React Query é ótimo para gerenciar o estado assíncrono globalmente em seu aplicativo, se você permitir. Só desative os sinalizadores de rebusca se souber que isso faz sentido para o seu caso de uso e resista ao desejo de sincronizar os dados do servidor com um gerenciador de estado diferente. Normalmente, personalizar o staleTime é tudo o que você precisa para obter um ótimo ux e, ao mesmo tempo, controlar a frequência com que as atualizações em segundo plano acontecem.
+

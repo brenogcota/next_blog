@@ -6,6 +6,7 @@ import Text from "ui/Text";
 
 import { useQuery } from "react-query";
 import { useLocale } from "context/locale";
+import Link from "next/link";
 
 type Song = {
   track: {
@@ -16,6 +17,7 @@ type Song = {
     };
     preview_url: string;
     artists: { name: string }[];
+    external_urls: { spotify: string }
   };
 };
 
@@ -85,18 +87,22 @@ const Songs = () => {
           {tracks?.map((recent) => {
             return (
               <SliderItem key={recent.track.id} data-id={recent.track.id}>
-                <SpotifyCard
-                  css={{
-                    backgroundImage: `url(${recent.track.album.images[0].url})`,
-                  }}
-                >
-                  <Text as="strong" size="md" css={{ color: "$primary" }}>
-                    {recent.track.name}
-                  </Text>
-                  <Text as="p" size="sm" css={{ color: "$white" }}>
-                    {recent.track.artists[0].name}
-                  </Text>
-                </SpotifyCard>
+                <Link href={recent.track.external_urls?.spotify} passHref>
+                  <a target="_blank" rel="noopener noreferrer">
+                    <SpotifyCard
+                      css={{
+                        backgroundImage: `url(${recent.track.album.images[0].url})`,
+                      }}
+                    >
+                      <Text as="strong" size="md" css={{ color: "$primary" }}>
+                        {recent.track.name}
+                      </Text>
+                      <Text as="p" size="sm" css={{ color: "$white" }}>
+                        {recent.track.artists[0].name}
+                      </Text>
+                    </SpotifyCard>
+                  </a>
+                </Link>
               </SliderItem>
             );
           })}

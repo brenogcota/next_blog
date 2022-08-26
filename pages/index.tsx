@@ -13,12 +13,10 @@ const Home: NextPage = () => {
       <Main />
       <Spacer size="lg" />
       <Spacer size="lg" />
+      <Songs />
       <Spacer size="lg" />
       <Spacer size="lg" />
       <Snippets />
-      <Spacer size="lg" />
-      <Spacer size="lg" />
-      <Songs />
       <Spacer size="lg" />
     </div>
   );

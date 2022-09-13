@@ -1,0 +1,187 @@
+---
+title: Increase Test Coverage
+publishedOn: Terç. 13 de set. 2022
+tags: [React, Jest, TDD]
+author: brenogcota
+---
+
+# Como alcançar um melhor coverage
+
+## ****O que significa ter 100% de cobertura de teste?****
+
+Ótimo, você tem 100% de cobertura de teste, mas o que isso realmente significa? 100% de cobertura de teste significa simplesmente que você escreveu uma quantidade suficiente de testes para cobrir cada linha de código em seu aplicativo. É isso, nada mais, nada menos. Se você estruturou seus testes corretamente, isso teoricamente significa que você pode prever o que algumas entradas fariam para obter alguma saída. Teoricamente... Isso não significa que você realmente escreveu um teste para verificar se a saída esperada é realmente retornada. Pode significar apenas que você escreveu um teste para uma parte diferente do aplicativo e uma linha foi executada no processo.
+
+Então, agora que delineei o que quero dizer com 100% de cobertura de teste, vamos ver algumas razões pelas quais você deseja alcançar a cobertura mágica de 100% de teste e algumas razões pelas quais isso pode ser uma grande perda de tempo.
+
+### **Você pode encontrar código quebrado**
+
+Outro cenário que você pode encontrar é encontrar um código que falhou silenciosamente até agora e você nunca percebeu isso antes.
+
+### **Você não quebrará seu código tão facilmente ao refatorar**
+
+Então, imagine que você chegou a 100% de cobertura depois de corrigir todos os erros e remover todo o código não utilizado, certificando-se de cobrir a maioria, se não todos os cenários com os quais seu código pode lidar, uma sensação bastante satisfatória, certo? Bem, agora vem um dos meus benefícios favoritos de ter 100% de cobertura de teste: refatorar código antigo e escrever novos recursos.
+
+### **Você pode confiar no seu processo**
+
+E o último benefício em que consigo pensar é ter uma sensação de segurança e confiança sobre a confiabilidade do código.
+
+## ****Por que atingir 100% de cobertura de teste pode ser uma perda de tempo****
+
+### **Os relatórios de cobertura são fáceis de enganar**
+
+Como mencionei no início deste post, 100% de cobertura de código significa que 100% de suas linhas de código foram executadas durante a execução de seus testes.
+
+### **100% de cobertura não significa que tudo está funcionando como deveria**
+
+Como mencionei no último parágrafo, só porque você executou cada linha de código, não significa que você realmente verificou se está funcionando como deveria.
+
+## Então, como alcançar um melhor coverage?
+
+Não existe uma bala de prata, nem uma única forma de alcançar uma boa taxa de coverage, cada componente se comporta de formas especificas, entretanto quando falamos sobre testar componentes funcionais no front-end temos algumas formas de cobrir o nosso código de forma que possamos ter um melhor coverage.
+
+### Componente puro
+
+O Primeiro passo e que provavelmente será responsável pela maior porcentagem da cobertura do seu componente é testar o seu componente em sua natureza mais simples, ou seja, passar todas as suas props necessárias, ignorando as condicionais que não falam de fato sobre o componente em si.
+Vamos utilizar como exemplo um componente do **app-support** que tenha algumas dessas características.
+
+```jsx
+import React from 'react';
+import { render, screen, getBySlot, fireEvent } from 'test-utils';
+
+import Shortcuts from '.';
+
+let props;
+describe('<Shortcuts />', () => {
+  beforeEach(() => {
+    props = {
+      user: {
+        fetching: false,
+        fetched: true,
+        data: {
+          email: 'johndue@mail.com'
+        }
+      }
+    };
+  });
+
+  it('should render show user purchases button', () => {
+    render(<Shortcuts {...props} />);
+    screen.getByRole('button', { name: /general\.show-user-purchases/i });
+  });
+
+  ...
+
+});
+```
+
+Dessa maneira nosso componente deve alcançar 35% de coverage:
+
+
+### Condicionais
+
+O segundo passo e provavelmente mais óbvio seria fazer com que o nosso código passe pelas condicionais que estão presentes na sua estrutura. Um exemplo comum é quando o nosso componente renderiza um loading de acordo com alguma prop ou requisição assíncrona.
+Alterando a propriedade fetching do teste anterior passaríamos a ter um coverage de 42%:
+
+
+### Propriedades opcionais
+
+Nosso exemplo não tem exatamente uma propriedade opcional, entretanto a idéia é bem parecida com oque falamos sobre condicionais, nesse caso de teste passaríamos as propriedades ou deixaríamos de passa-las de acordo com os testes anteriores.
+
+```jsx
+it('should render empty dom element', () => {
+    props.user.fetched = false;
+    const { container } = render(<Shortcuts {...props} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+```
+
+Essa pequena alteração garante que tenhamos uma maior cobertura de linhas de código e também da confiança quanto aos diferentes cenários possíveis da nossa aplicação. Temos um coverage de 50% após essa mudança.
+
+
+### Ações de clique
+
+Esse talvez seja o ponto crucial para garantir que as interações do usuário com o nosso aplicativo irão funcionar e garantir a qualidade e cobertura dos nossos testes. 
+
+Analisando o código a seguir basicamente o que estamos fazendo é clicando em um button que abre um link em uma nova guia. A implementação desse trecho nos garantiria um coverage de 64%.
+
+```jsx
+it('should open purchases in new tab', () => {
+    window.open = jest.fn();
+    render(<Shortcuts {...props} />);
+    fireEvent.click(
+      screen.getByRole('button', { name: /general\.show-user-purchases/i })
+    );
+
+    expect(window.open).toHaveBeenCalledWith(
+      expect.stringMatching(/\/support\/purchases\?email=joao.figueiredo@hotmart.com/i),
+      '_blank'
+    );
+    window.open.mockClear();
+});
+```
+
+Testando nosso outro botão que também abre um link em uma nova guia foi possível batermos 100% de coverage no nosso componente.
+
+
+### Caso sua Promise tenha sucesso
+
+Para conseguir testar os trechos de código assíncrono uma estratégia pode ser o uso de mocks, dessa forma conseguimos verificar se nosso trecho que depende do sucesso de uma promise será executado como esperado.
+
+```jsx
+// envio de formulário qualquer
+const onSubmit = () => {
+ updateUser.then((user) => props.refresh(user))
+ .catch((err) => {
+	ToastUtils.error(err)
+ })
+}
+
+// nosso teste
+beforeEach(() => {
+	updateUser.mockImplementation(() => Promise.resolve('value'))
+})
+...
+
+it('call refresh prop if update user', async () => {
+	...
+  fireEvent.submit(form)
+  await waitFor(() => {
+   expect(props.refresh).toHaveBeenCalledWith('value')
+  })
+})
+```
+
+### Caso sua Promise falhe
+
+O último ponto que pode ajudar a obter uma maior cobertura no nosso código seria validar se tudo ocorre como esperado em caso de uma falha na execução da promise.
+
+```jsx
+// envio de formulário qualquer
+const onSubmit = () => {
+ updateUser.then((user) => props.refresh(user))
+ .catch((err) => {
+	ToastUtils.error(err)
+ })
+}
+
+// nosso teste
+
+it('call refresh prop if update user', async () => {
+  updateUser.mockImplementation(() => Promise.reject('value'))
+	...
+  fireEvent.submit(form)
+  await waitFor(() => {
+   expect(ToastUtilsMock.error).toHaveBeenCalledWith('value')
+  })
+})
+```
+
+Como comentado anteriormente, 100% de coverage não é uma bala de prata, entretanto garantir que todas as partes do nosso código foram devidamente testada é essencial para termos maior confiança de que nosso projeto está funcionando da melhor forma.
+
+**Referências:**
+
+[https://roelofjanelsinga.com/articles/100-test-coverage-why-or-why-not](https://roelofjanelsinga.com/articles/100-test-coverage-why-or-why-not)
+
+[https://betterprogramming.pub/how-to-achieve-100-test-coverage-for-react-functional-components-fbde1e40631c](https://betterprogramming.pub/how-to-achieve-100-test-coverage-for-react-functional-components-fbde1e40631c)
+
+[https://www.functionize.com/blog/the-myth-of-100-code-coverage](https://www.functionize.com/blog/the-myth-of-100-code-coverage)

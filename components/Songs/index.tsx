@@ -44,6 +44,15 @@ const SpotifyCard = styled("div", {
   transition: "all .2s",
   cursor: "pointer",
   position: "relative",
+  backgroundPosition: 'center',
+
+  "&::after": {
+    content: '',
+    display: 'block',
+    width: '100%',
+    height: '100%',
+    backgroundImage: 'linear-gradient(to top, rgba(0, 0, 0, .85) 0%, rgba(0, 0, 0, 0) 35%)',
+  },
 
   "&:hover": {
     backgroundSize: "120%",

@@ -1,12 +1,13 @@
 import axios from "axios";
 import { Suspense } from "react";
 import { styled } from "stitches.config";
-import { Slider, SliderItem } from "ui/Slider";
 import Text from "ui/Text";
 
 import { useQuery } from "react-query";
 import { useLocale } from "context/locale";
 import Link from "next/link";
+import { Grid } from "ui/Column";
+import useMobileDetect from "hooks/useDeviceDetector";
 
 type Song = {
   track: {
@@ -67,12 +68,15 @@ const SpotifyCard = styled("div", {
 
 const Songs = () => {
   const t = useLocale();
+  const { isMobile } = useMobileDetect();
   const { error, data } = useQuery<Tracks>(
     "spotify",
     async () => (await axios.get("/api/top-tracks")).data
   );
 
-  const tracks = data?.tracks?.items;
+  const allTracks = data?.tracks?.items;
+  const tracks = data?.tracks?.items?.splice(0, 8);
+
 
   if (error || !tracks) return <></>;
 
@@ -92,10 +96,10 @@ const Songs = () => {
             {t.played_songs}
           </Text>
         </Text>
-        <Slider>
+        <Grid columns={isMobile() ? "2" : "4"}>
           {tracks?.map((recent) => {
             return (
-              <SliderItem key={recent.track.id} data-id={recent.track.id}>
+              <div key={recent.track.id} data-id={recent.track.id}>
                 <Link href={recent.track.external_urls?.spotify} passHref>
                   <a target="_blank" rel="noopener noreferrer">
                     <SpotifyCard
@@ -112,10 +116,10 @@ const Songs = () => {
                     </SpotifyCard>
                   </a>
                 </Link>
-              </SliderItem>
+              </div>
             );
           })}
-        </Slider>
+        </Grid>
       </Container>
     </Suspense>
   );

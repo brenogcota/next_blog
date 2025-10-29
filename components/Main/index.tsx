@@ -2,7 +2,6 @@ import Text from "ui/Text";
 
 import settings from 'production.json';
 import { Grid } from "ui/Column";
-import Avatar from "components/Avatar";
 import { styled } from "stitches.config";
 import { useLocale } from "context/locale";
 
@@ -50,11 +49,11 @@ const Main = () => {
                             size="md" 
                             href={settings.work_company}
                             css={{
-                                color: '#f04e23',
+                                color: '#7AB441',
                                 fontWeight: '$md'
                             }}
                         >
-                            {' '} @Hotmart
+                            {' '} @Jusbrasil
                         </Text>
                     </Text>
 
@@ -97,9 +96,6 @@ const Main = () => {
                     <Text as="a" size="sm" href={settings.links.instagram}>Instagram</Text>
                 </div>
                 </Grid>
-            </div>
-            <div className="right-column">
-                <Avatar />
             </div>
         </Grid>
     </Container>

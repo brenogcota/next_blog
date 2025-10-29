@@ -15,13 +15,12 @@ function MyApp({ Component, pageProps }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
         attribute="class"
-        defaultTheme="dark"
+        defaultTheme="light"
         value={{
           light: "light",
           dark: darkTheme.className
       }}>
         <LocaleProvider>
-          <Header />
           <Component {...pageProps} />
           <Footer />
         </LocaleProvider>

@@ -1,23 +1,20 @@
 import HeadSEO from "components/Head";
-import Main from "components/Main";
 import Songs from "components/Songs";
+import NewMain from "components/NewMain";
 import type { NextPage } from "next";
 import Spacer from "ui/Spacer";
-
-import Snippets from "components/Snippets";
 
 const Home: NextPage = () => {
   return (
     <div>
       <HeadSEO />
-      <Main />
-      <Spacer size="lg" />
+      <NewMain />
       <Spacer size="lg" />
       <Songs />
       <Spacer size="lg" />
-      <Spacer size="lg" />
+      {/* <Spacer size="lg" />
       <Snippets />
-      <Spacer size="lg" />
+      <Spacer size="lg" /> */}
     </div>
   );
 };

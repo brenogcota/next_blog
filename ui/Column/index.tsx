@@ -19,7 +19,7 @@ const Stitch = styled('div', {
 
 const GridStitch = styled('div', {
     display: 'grid',
-    gap: '10%',
+    gap: '16px',
     variants: {
         columns: {
             2: {

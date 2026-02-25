@@ -23,7 +23,11 @@ const Header = () => {
     <HeaderLayout>
       <Logo href={`/${locale}`}><span>d</span>brno</Logo>
       <nav>
-        <Playing onlyIcon={isMobile()} />
+        <Link href='/listening'>
+          <a style={{ display: 'flex', alignItems: 'center', marginRight: '15px', cursor: 'pointer' }}>
+            <Playing onlyIcon={isMobile()} />
+          </a>
+        </Link>
         <LocaleSwitch />
         <Link
           href='/blog'

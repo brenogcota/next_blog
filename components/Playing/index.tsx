@@ -26,7 +26,6 @@ const style = {
   display: "flex",
   alignItems: "center",
   gap: "5px",
-  marginRight: "15px",
 };
 
 const Playing = ({ onlyIcon = false }: { onlyIcon?: boolean }) => {
@@ -41,12 +40,7 @@ const Playing = ({ onlyIcon = false }: { onlyIcon?: boolean }) => {
   if (error) return <></>;
 
   return (
-    <a
-      href={playing?.is_playing ? playing?.item?.external_urls.spotify : "#"}
-      target={playing?.is_playing ? "_blank" : ""}
-      rel="noreferrer"
-      style={style}
-    >
+    <div style={style}>
       {onlyIcon ? (
         <>
           <Spotify />
@@ -71,7 +65,7 @@ const Playing = ({ onlyIcon = false }: { onlyIcon?: boolean }) => {
           )}
         </>
       )}
-    </a>
+    </div>
   );
 };
 

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useLocale } from "context/locale";
+import Link from "next/link";
 import { useQuery } from "react-query";
 import Spotify from "ui/Spotify";
 import Text from "ui/Text";
@@ -23,6 +24,7 @@ type Playing = {
 };
 
 const style = {
+  cursor: 'pointer',
   display: "flex",
   alignItems: "center",
   gap: "5px",
@@ -40,32 +42,34 @@ const Playing = ({ onlyIcon = false }: { onlyIcon?: boolean }) => {
   if (error) return <></>;
 
   return (
-    <div style={style}>
-      {onlyIcon ? (
-        <>
-          <Spotify />
-        </>
-      ) : (
-        <>
-          <Spotify />
-          {playing?.is_playing ? (
+    <Link href='/listening'>
+      <div style={style}>
+          {onlyIcon ? (
             <>
-              <Text as="span" size="sm">
-                {playing?.item?.name}
-              </Text>
-              {" - "}
-              <Text as="span" size="sm">
-                {playing?.item?.artists[0].name}
-              </Text>
+              <Spotify />
             </>
           ) : (
-            <Text as="span" size="sm">
-              Not playing
-            </Text>
+            <>
+              <Spotify />
+              {playing?.is_playing ? (
+                <>
+                  <Text as="span" size="sm">
+                    {playing?.item?.name}
+                  </Text>
+                  {" - "}
+                  <Text as="span" size="sm">
+                    {playing?.item?.artists[0].name}
+                  </Text>
+                </>
+              ) : (
+                <Text as="span" size="sm">
+                  Not playing
+                </Text>
+              )}
+            </>
           )}
-        </>
-      )}
-    </div>
+      </div>
+    </Link>
   );
 };
 

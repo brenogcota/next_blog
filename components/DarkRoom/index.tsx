@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/router';
 import { styled, keyframes } from '@stitches/react';
@@ -83,8 +83,15 @@ const DarkRoom = () => {
   const { setTheme, theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+  const lastTapRef = useRef<number>(0);
 
   const isDark = theme === 'dark';
+
+  const toggleTheme = useCallback(() => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    router.push({ query: { ...router.query, mode: newTheme } }, undefined, { shallow: true });
+  }, [theme, setTheme, router]);
 
   // Check URL query param on mount and set theme
   useEffect(() => {
@@ -101,27 +108,46 @@ const DarkRoom = () => {
     setMousePos({ x: e.clientX, y: e.clientY });
   }, []);
 
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (e.touches.length > 0) {
+      setMousePos({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+    }
+  }, []);
+
+  const handleDoubleTap = useCallback(() => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+    
+    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      toggleTheme();
+      lastTapRef.current = 0;
+    } else {
+      lastTapRef.current = now;
+    }
+  }, [toggleTheme]);
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.code === 'Space') {
       e.preventDefault();
-      const newTheme = theme === 'dark' ? 'light' : 'dark';
-      setTheme(newTheme);
-      // Update URL without reload
-      router.push({ query: { ...router.query, mode: newTheme } }, undefined, { shallow: true });
+      toggleTheme();
     }
-  }, [setTheme, theme, router]);
+  }, [toggleTheme]);
 
   useEffect(() => {
     if (!mounted) return;
     
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchend', handleDoubleTap);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleDoubleTap);
     };
-  }, [mounted, handleMouseMove, handleKeyDown]);
+  }, [mounted, handleMouseMove, handleKeyDown, handleTouchMove, handleDoubleTap]);
 
   if (!mounted) return null;
 
@@ -285,9 +311,28 @@ const DarkRoom = () => {
             letterSpacing: '2px',
             textTransform: 'uppercase',
             fontSize: '12px',
+            display: 'none',
+            '@media (min-width: 640px)': {
+              display: 'block',
+            },
           }}
         >
           {isDark ? '✨ tap space to turn on the light ✨' : '💡 tap space to turn off the light 💡'}
+        </Text>
+        <Text
+          size="sm"
+          css={{
+            color: colors.hint,
+            letterSpacing: '2px',
+            textTransform: 'uppercase',
+            fontSize: '12px',
+            display: 'block',
+            '@media (min-width: 640px)': {
+              display: 'none',
+            },
+          }}
+        >
+          {isDark ? '✨ double tap to turn on the light ✨' : '💡 double tap to turn off the light 💡'}
         </Text>
       </HintText>
     </Container>

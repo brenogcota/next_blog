@@ -15,12 +15,20 @@ const progress = keyframes({
 const PlayerWrapper = styled('div', {
   display: 'flex',
   alignItems: 'center',
-  gap: '16px',
-  padding: '16px',
+  gap: '12px',
+  padding: '12px',
   borderRadius: '12px',
+  width: '100%',
   maxWidth: '360px',
   margin: '0 auto',
   transition: 'all 0.3s ease',
+  flexWrap: 'wrap',
+
+  '@media (min-width: 640px)': {
+    gap: '16px',
+    padding: '16px',
+    flexWrap: 'nowrap',
+  },
 
   variants: {
     isDark: {
@@ -37,12 +45,17 @@ const PlayerWrapper = styled('div', {
 });
 
 const AlbumArt = styled('div', {
-  width: '80px',
-  height: '80px',
+  width: '60px',
+  height: '60px',
   borderRadius: '8px',
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   flexShrink: 0,
+
+  '@media (min-width: 640px)': {
+    width: '80px',
+    height: '80px',
+  },
 });
 
 const TrackInfo = styled('div', {

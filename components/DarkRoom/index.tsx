@@ -1,80 +1,126 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { useTheme } from 'next-themes';
-import { useRouter } from 'next/router';
-import { styled, keyframes } from '@stitches/react';
-import Text from 'ui/Text';
-import { useLocale } from 'context/locale';
-import settings from 'production.json';
-import { Grid } from 'ui/Column';
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useTheme } from "next-themes";
+import { useRouter } from "next/router";
+import { styled, keyframes } from "@stitches/react";
+import Text from "ui/Text";
+import { useLocale } from "context/locale";
+import settings from "production.json";
+import { Grid } from "ui/Column";
+import CandleCursor from "./cursor";
 
 const pulse = keyframes({
-  '0%, 100%': { opacity: 0.6 },
-  '50%': { opacity: 1 },
+  "0%, 100%": { opacity: 0.6 },
+  "50%": { opacity: 1 },
 });
 
-const Container = styled('div', {
-  position: 'relative',
-  width: '100%',
-  overflow: 'hidden',
-  transition: 'background-color 0.3s ease',
-  
+const Container = styled("div", {
+  position: "relative",
+  width: "100%",
+  overflow: "hidden",
+  transition: "background-color 0.3s ease",
+
   variants: {
     isDark: {
       true: {
-        backgroundColor: '#0a0a0a',
-        cursor: 'none',
+        backgroundColor: "#0a0a0a",
+        cursor: "none",
       },
       false: {
-        backgroundColor: 'transparent',
-        cursor: 'auto',
+        backgroundColor: "transparent",
+        cursor: "auto",
       },
     },
   },
 });
 
-const SpotlightOverlay = styled('div', {
-  position: 'fixed',
+const SpotlightOverlay = styled("div", {
+  position: "fixed",
   top: 0,
   left: 0,
-  width: '100%',
-  height: '100%',
-  pointerEvents: 'none',
+  width: "100%",
+  height: "100%",
+  pointerEvents: "none",
   zIndex: 100,
-  transition: 'opacity 0.5s ease',
+  transition: "opacity 0.5s ease",
 });
 
-const Content = styled('main', {
-  position: 'relative',
-  padding: '80px 20px',
+const Content = styled("main", {
+  position: "relative",
+  padding: "80px 20px",
   zIndex: 1,
-  transition: 'color 0.3s ease',
+  transition: "color 0.3s ease",
 
-  '@media (min-width: 640px)': {
-    padding: '100px 62px',
+  "@media (min-width: 640px)": {
+    padding: "100px 62px",
   },
 });
 
-const HintText = styled('div', {
-  position: 'fixed',
-  bottom: '40px',
-  left: '50%',
-  transform: 'translateX(-50%)',
+const HintText = styled("div", {
+  position: "fixed",
+  bottom: "40px",
+  left: "50%",
+  transform: "translateX(-50%)",
   zIndex: 200,
-  textAlign: 'center',
+  textAlign: "center",
   animation: `${pulse} 2s ease-in-out infinite`,
 });
 
-const CustomCursor = styled('div', {
-  position: 'fixed',
-  width: '20px',
-  height: '20px',
-  borderRadius: '50%',
-  backgroundColor: 'rgba(255, 200, 100, 0.8)',
-  boxShadow: '0 0 30px 15px rgba(255, 180, 80, 0.4), 0 0 60px 30px rgba(255, 150, 50, 0.2)',
-  pointerEvents: 'none',
+const CustomCursor = styled("div", {
+  position: "fixed",
+  width: "12px",
+  height: "28px",
+  borderRadius: "6px",
   zIndex: 300,
-  transform: 'translate(-50%, -50%)',
-  transition: 'opacity 0.3s ease',
+  background:
+    "radial-gradient(circle at 50% 0%, rgba(255, 200, 120, 0.18), rgba(255, 200, 120, 0.08) 35%, #0e0e0e 70%)",
+  pointerEvents: "none",
+  transform: "translate(-50%, -50%)",
+
+  // 🌕 Iluminação geral (halo)
+  boxShadow: `
+    0 0 45px 22px rgba(255, 180, 80, 0.35),
+    0 0 90px 45px rgba(255, 140, 60, 0.18)
+  `,
+  animation: `lightBreath 2s cubic-bezier(0.4, 0, 0.6, 1) infinite`,
+
+  // 🔥 Chama
+  "&::before": {
+    content: '""',
+    position: "absolute",
+    top: "-16px",
+    left: "50%",
+    width: "8px",
+    height: "16px",
+    borderRadius: "50%",
+    transform:
+      "translateX(calc(-50% + var(--wind-x))) translateY(var(--wind-y))",
+    background:
+      "radial-gradient(circle at 50% 30%, #ffffff 0%, #ffd27d 35%, #ff9f43 60%, rgba(255, 140, 60, 0.15) 75%)",
+    filter: "blur(0.6px)",
+    transformOrigin: "50% 80%",
+    transition: "transform 0.15s ease-out",
+    animation: "flameBreath 2s ease-in-out infinite",
+  },
+
+  // 🕯️ Pavio iluminado
+  "&::after": {
+    content: '""',
+    position: "absolute",
+    top: "-5px",
+    left: "50%",
+    width: "2px",
+    height: "7px",
+    transform: "translateX(-50%)",
+    background: `
+      radial-gradient(
+        circle at 50% 0%,
+        rgba(255, 200, 120, 0.7),
+        rgba(255, 200, 120, 0.25) 40%,
+        #000 70%
+      )
+    `,
+    borderRadius: "2px",
+  },
 });
 
 const DarkRoom = () => {
@@ -85,21 +131,23 @@ const DarkRoom = () => {
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
   const lastTapRef = useRef<number>(0);
 
-  const isDark = theme === 'dark';
+  const isDark = theme === "dark";
 
   const toggleTheme = useCallback(() => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
-    router.push({ query: { ...router.query, mode: newTheme } }, undefined, { shallow: true });
+    router.push({ query: { ...router.query, mode: newTheme } }, undefined, {
+      shallow: true,
+    });
   }, [theme, setTheme, router]);
 
   // Check URL query param on mount and set theme
   useEffect(() => {
     setMounted(true);
-    
+
     // Get mode from URL query param
     const urlMode = router.query.mode as string;
-    if (urlMode === 'dark' || urlMode === 'light') {
+    if (urlMode === "dark" || urlMode === "light") {
       setTheme(urlMode);
     }
   }, [router.query.mode, setTheme]);
@@ -117,7 +165,7 @@ const DarkRoom = () => {
   const handleDoubleTap = useCallback(() => {
     const now = Date.now();
     const DOUBLE_TAP_DELAY = 300;
-    
+
     if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
       toggleTheme();
       lastTapRef.current = 0;
@@ -126,41 +174,60 @@ const DarkRoom = () => {
     }
   }, [toggleTheme]);
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.code === 'Space') {
-      e.preventDefault();
-      toggleTheme();
-    }
-  }, [toggleTheme]);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        toggleTheme();
+      }
+    },
+    [toggleTheme],
+  );
 
   useEffect(() => {
     if (!mounted) return;
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('touchmove', handleTouchMove);
-    window.addEventListener('touchend', handleDoubleTap);
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("touchmove", handleTouchMove);
+    window.addEventListener("touchend", handleDoubleTap);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleDoubleTap);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleDoubleTap);
     };
-  }, [mounted, handleMouseMove, handleKeyDown, handleTouchMove, handleDoubleTap]);
+  }, [
+    mounted,
+    handleMouseMove,
+    handleKeyDown,
+    handleTouchMove,
+    handleDoubleTap,
+  ]);
 
   if (!mounted) return null;
 
-  const spotlightStyle = isDark ? {
-    background: `radial-gradient(circle 150px at ${mousePos.x}px ${mousePos.y}px, transparent 0%, rgba(10, 10, 10, 0.85) 80%, rgba(10, 10, 10, 0.98) 100%)`,
-  } : {};
+  const spotlightStyle = isDark
+    ? {
+        background: `
+        radial-gradient(
+          circle 180px
+          at ${mousePos.x}px ${mousePos.y}px,
+          transparent 0%,
+          rgba(10, 10, 10, 0.85) 75%,
+          rgba(10, 10, 10, 0.98) 100%
+        )
+      `,
+      }
+    : {};
 
   // Dynamic colors based on theme
   const colors = {
-    title: isDark ? '#f0f0f0' : '$dark600',
-    text: isDark ? '#c0c0c0' : '$dark500',
-    subtext: isDark ? '#a0a0a0' : '$dark500',
-    hint: isDark ? 'rgba(255, 200, 100, 0.8)' : 'rgba(100, 100, 100, 0.6)',
+    title: isDark ? "#f0f0f0" : "$dark600",
+    text: isDark ? "#c0c0c0" : "$dark500",
+    subtext: isDark ? "#a0a0a0" : "$dark500",
+    hint: isDark ? "rgba(255, 200, 100, 0.8)" : "rgba(100, 100, 100, 0.6)",
   };
 
   return (
@@ -168,13 +235,7 @@ const DarkRoom = () => {
       {isDark && (
         <>
           <SpotlightOverlay style={spotlightStyle} />
-          <CustomCursor 
-            style={{ 
-              left: mousePos.x, 
-              top: mousePos.y,
-              opacity: mousePos.x > 0 ? 1 : 0
-            }} 
-          />
+          <CandleCursor mousePos={mousePos} />
         </>
       )}
 
@@ -182,10 +243,10 @@ const DarkRoom = () => {
         <Grid
           columns="2"
           css={{
-            gridTemplateColumns: '90% 0%',
-            '@media (min-width: 640px)': {
-              gridTemplateColumns: '60% 30%',
-              columnGap: '10%',
+            gridTemplateColumns: "90% 0%",
+            "@media (min-width: 640px)": {
+              gridTemplateColumns: "60% 30%",
+              columnGap: "10%",
             },
           }}
         >
@@ -194,11 +255,11 @@ const DarkRoom = () => {
               as="h1"
               size="xlg"
               css={{
-                fontSize: '32px',
-                marginBottom: '24px',
+                fontSize: "32px",
+                marginBottom: "24px",
                 color: colors.title,
-                '@media (min-width: 640px)': {
-                  fontSize: '48px',
+                "@media (min-width: 640px)": {
+                  fontSize: "48px",
                 },
               }}
             >
@@ -210,7 +271,7 @@ const DarkRoom = () => {
               css={{
                 color: colors.text,
                 lineHeight: 1.7,
-                marginBottom: '16px',
+                marginBottom: "16px",
               }}
             >
               {t.about || "I'm a software developer"}
@@ -219,11 +280,12 @@ const DarkRoom = () => {
                 size="md"
                 href={settings.work_company}
                 css={{
-                  color: '#7AB441',
+                  color: "#7AB441",
                   fontWeight: 600,
                 }}
               >
-                {' '}@Jusbrasil
+                {" "}
+                @Jusbrasil
               </Text>
             </Text>
 
@@ -232,7 +294,7 @@ const DarkRoom = () => {
               css={{
                 color: colors.text,
                 lineHeight: 1.7,
-                marginBottom: '40px',
+                marginBottom: "40px",
               }}
             >
               {t.about_2 || "Check out my projects"}
@@ -241,11 +303,12 @@ const DarkRoom = () => {
                 size="md"
                 href={settings.github}
                 css={{
-                  color: '#20D760',
+                  color: "#20D760",
                   fontWeight: 600,
                 }}
               >
-                {' '}{t.here || 'here'}.
+                {" "}
+                {t.here || "here"}.
               </Text>
             </Text>
 
@@ -308,31 +371,35 @@ const DarkRoom = () => {
           size="sm"
           css={{
             color: colors.hint,
-            letterSpacing: '2px',
-            textTransform: 'uppercase',
-            fontSize: '12px',
-            display: 'none',
-            '@media (min-width: 640px)': {
-              display: 'block',
+            letterSpacing: "2px",
+            textTransform: "uppercase",
+            fontSize: "12px",
+            display: "none",
+            "@media (min-width: 640px)": {
+              display: "block",
             },
           }}
         >
-          {isDark ? '✨ tap space to turn on the light ✨' : '💡 tap space to turn off the light 💡'}
+          {isDark
+            ? "✨ tap space to turn on the light ✨"
+            : "💡 tap space to turn off the light 💡"}
         </Text>
         <Text
           size="sm"
           css={{
             color: colors.hint,
-            letterSpacing: '2px',
-            textTransform: 'uppercase',
-            fontSize: '12px',
-            display: 'block',
-            '@media (min-width: 640px)': {
-              display: 'none',
+            letterSpacing: "2px",
+            textTransform: "uppercase",
+            fontSize: "12px",
+            display: "block",
+            "@media (min-width: 640px)": {
+              display: "none",
             },
           }}
         >
-          {isDark ? '✨ double tap to turn on the light ✨' : '💡 double tap to turn off the light 💡'}
+          {isDark
+            ? "✨ double tap to turn on the light ✨"
+            : "💡 double tap to turn off the light 💡"}
         </Text>
       </HintText>
     </Container>

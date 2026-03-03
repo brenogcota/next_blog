@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { styled } from "../stitches.config";
 import Head from "next/head";
 import Script from "next/script";
+import { useRouter } from "next/router";
 
 declare global {
   interface Window {
@@ -162,6 +163,10 @@ const ShareButton = styled("button", {
   "&:hover": {
     opacity: 0.9,
   },
+  "&:disabled": {
+    opacity: 0.6,
+    cursor: "not-allowed",
+  },
 });
 
 const ClearButton = styled("button", {
@@ -223,6 +228,7 @@ Visit [GitHub](https://github.com) for more info.
 `;
 
 export default function MarkdownPage() {
+  const router = useRouter();
   const [markdown, setMarkdown] = useState("");
   const [html, setHtml] = useState("");
   const [markedLoaded, setMarkedLoaded] = useState(false);
@@ -231,6 +237,8 @@ export default function MarkdownPage() {
   const [toastMessage, setToastMessage] = useState("");
   const [leftWidth, setLeftWidth] = useState(50); // percentage
   const [isDragging, setIsDragging] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -292,30 +300,68 @@ export default function MarkdownPage() {
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  // Load from hash on mount
+  // Load from URL query param (?id=xxx) or hash (legacy support)
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash.length > 1) {
-      try {
-        const decoded = decodeURIComponent(
-          atob(window.location.hash.slice(1))
-        );
-        setMarkdown(decoded);
-        if (markedLoaded) {
-          render(decoded);
+    const loadMarkdown = async () => {
+      const { id } = router.query;
+      
+      // Load from short URL (via API)
+      if (id && typeof id === "string") {
+        setIsLoading(true);
+        try {
+          const response = await fetch(`/api/md/${id}`);
+          if (response.ok) {
+            const data = await response.json();
+            setMarkdown(data.content);
+            if (markedLoaded) {
+              render(data.content);
+            }
+          } else {
+            showToast("Link expired or not found");
+            setMarkdown(defaultMarkdown);
+            if (markedLoaded) {
+              render(defaultMarkdown);
+            }
+          }
+        } catch {
+          showToast("Failed to load markdown");
+          setMarkdown(defaultMarkdown);
+          if (markedLoaded) {
+            render(defaultMarkdown);
+          }
+        } finally {
+          setIsLoading(false);
         }
-      } catch {
-        setMarkdown(defaultMarkdown);
-        if (markedLoaded) {
-          render(defaultMarkdown);
+        return;
+      }
+      
+      // Legacy: Load from hash (base64 encoded)
+      if (typeof window !== "undefined" && window.location.hash.length > 1) {
+        try {
+          const decoded = decodeURIComponent(
+            atob(window.location.hash.slice(1))
+          );
+          setMarkdown(decoded);
+          if (markedLoaded) {
+            render(decoded);
+          }
+          return;
+        } catch {
+          // Invalid hash, continue to default
         }
       }
-    } else {
+      
+      // Default markdown
       setMarkdown(defaultMarkdown);
       if (markedLoaded) {
         render(defaultMarkdown);
       }
+    };
+
+    if (router.isReady) {
+      loadMarkdown();
     }
-  }, [markedLoaded, render]);
+  }, [router.isReady, router.query, markedLoaded, render]);
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -329,20 +375,46 @@ export default function MarkdownPage() {
     setTimeout(() => setToastVisible(false), 2000);
   };
 
-  const share = () => {
-    const encoded = btoa(encodeURIComponent(markdown));
-    const url = window.location.origin + window.location.pathname + "#" + encoded;
-    navigator.clipboard.writeText(url).then(() => {
-      showToast("Link copied to clipboard!");
-    }).catch(() => {
-      showToast("Failed to copy link");
-    });
+  const share = async () => {
+    if (!markdown.trim()) {
+      showToast("Nothing to share");
+      return;
+    }
+    
+    setIsSharing(true);
+    try {
+      const response = await fetch("/api/md/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: markdown }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to create share link");
+      }
+      
+      const { id } = await response.json();
+      const url = `${window.location.origin}/md?id=${id}`;
+      
+      await navigator.clipboard.writeText(url);
+      showToast("Short link copied! (expires in 24h)");
+      
+      // Update URL without reload
+      window.history.replaceState(null, "", `/md?id=${id}`);
+    } catch (error: any) {
+      showToast(error.message || "Failed to create share link");
+    } finally {
+      setIsSharing(false);
+    }
   };
 
   const clear = () => {
     setMarkdown("");
     setHtml("");
-    window.history.replaceState(null, "", window.location.pathname);
+    window.history.replaceState(null, "", "/md");
   };
 
   return (
@@ -388,9 +460,14 @@ export default function MarkdownPage() {
           />
         </Panel>
       </Container>
-      <ShareButton onClick={share}>Share</ShareButton>
+      <ShareButton onClick={share} disabled={isSharing}>
+        {isSharing ? "Saving..." : "Share"}
+      </ShareButton>
       <ClearButton onClick={clear}>Clear</ClearButton>
       <Toast visible={toastVisible}>{toastMessage}</Toast>
+      {isLoading && (
+        <Toast visible={true}>Loading markdown...</Toast>
+      )}
     </>
   );
 }

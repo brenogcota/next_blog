@@ -251,21 +251,19 @@ const Listening = () => {
               {tracks?.map((recent) => {
                 return (
                   <div key={recent.track.id} data-id={recent.track.id}>
-                    <Link href={recent.track.external_urls?.spotify} passHref>
-                      <a target="_blank" rel="noopener noreferrer">
-                        <SpotifyCard
-                          css={{
-                            backgroundImage: `url(${recent.track.album.images[0].url})`,
-                          }}
-                        >
-                          <Text as="strong" css={{ color: "#1DB954" }}>
-                            {recent.track.name}
-                          </Text>
-                          <Text as="p" css={{ color: "#fff" }}>
-                            {recent.track.artists[0].name}
-                          </Text>
-                        </SpotifyCard>
-                      </a>
+                    <Link href={recent.track.external_urls?.spotify || '#'} target="_blank" rel="noopener noreferrer">
+                      <SpotifyCard
+                        css={{
+                          backgroundImage: `url(${recent.track.album.images[0].url})`,
+                        }}
+                      >
+                        <Text as="strong" css={{ color: "#1DB954" }}>
+                          {recent.track.name}
+                        </Text>
+                        <Text as="p" css={{ color: "#fff" }}>
+                          {recent.track.artists[0].name}
+                        </Text>
+                      </SpotifyCard>
                     </Link>
                   </div>
                 );

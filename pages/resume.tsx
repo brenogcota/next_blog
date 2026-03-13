@@ -510,14 +510,14 @@ const ResumePage = () => {
   };
 
   return (
-    <ResumeContainer>
+    <ResumeContainer className="resume-container">
       <ControlPanel editMode={isEditMode}>
         <PrintButton onClick={handlePrint}>
           Salvar PDF
         </PrintButton>
       </ControlPanel>
 
-      <ResumeSheet ref={resumeRef}>
+      <ResumeSheet ref={resumeRef} className="resume-content">
         <Header>
           <Name 
             contentEditable={isEditMode} 
@@ -526,7 +526,7 @@ const ResumePage = () => {
           >
             Breno Gonçalves Cota
           </Name>
-          <ContactInfo>
+          <ContactInfo className="contact-info">
             <ContactItem 
               contentEditable={isEditMode} 
               suppressContentEditableWarning={true}
@@ -558,7 +558,7 @@ const ResumePage = () => {
           </ContactInfo>
         </Header>
 
-        <Summary>
+        <Summary className="summary-section">
           <SummaryText 
             contentEditable={isEditMode} 
             suppressContentEditableWarning={true}
@@ -568,7 +568,7 @@ const ResumePage = () => {
           </SummaryText>
         </Summary>
 
-        <MainGrid>
+        <MainGrid className="main-grid">
           <MainContent>
             <Section>
               <SectionHeader>
@@ -583,7 +583,7 @@ const ResumePage = () => {
               </SectionHeader>
               
               {experiences.map((exp) => (
-                <JobItem key={exp.id}>
+                <JobItem key={exp.id} className="job-item">
                   <JobHeader>
                     <JobTitleContainer>
                       <JobTitle 
@@ -605,6 +605,7 @@ const ResumePage = () => {
                       contentEditable={isEditMode} 
                       suppressContentEditableWarning={true}
                       style={{ cursor: isEditMode ? 'text' : 'default' }}
+                      className="job-date"
                     >
                       {exp.date}
                     </JobDate>
@@ -638,13 +639,14 @@ const ResumePage = () => {
                   +
                 </AddButton>
               </SectionHeader>
-              <SkillsContainer>
+              <SkillsContainer className="skills-container">
                 {skills.map((skill, index) => (
                   <SkillContainer key={index}>
                     <SkillTag 
                       contentEditable={isEditMode}
                       suppressContentEditableWarning={true}
                       style={{ cursor: isEditMode ? 'text' : 'default' }}
+                      className="skill-tag"
                     >
                       {skill}
                     </SkillTag>
@@ -663,7 +665,7 @@ const ResumePage = () => {
 
             <Section>
               <SectionTitle>Education</SectionTitle>
-              <EducationContent>
+              <EducationContent className="education-content">
                 <EducationInstitution 
                   contentEditable={isEditMode} 
                   suppressContentEditableWarning={true}
@@ -699,13 +701,14 @@ const ResumePage = () => {
                   +
                 </AddButton>
               </SectionHeader>
-              <CertificationsList>
+              <CertificationsList className="certifications-list">
                 {certifications.map((cert, index) => (
                   <CertificationContainer key={index}>
                     <CertificationItem 
                       contentEditable={isEditMode} 
                       suppressContentEditableWarning={true}
                       style={{ cursor: isEditMode ? 'text' : 'default', flex: 1 }}
+                      className="certification-item"
                     >
                       {cert}
                     </CertificationItem>
@@ -732,13 +735,14 @@ const ResumePage = () => {
                   +
                 </AddButton>
               </SectionHeader>
-              <CertificationsList>
+              <CertificationsList className="certifications-list">
                 {languages.map((language, index) => (
                   <CertificationContainer key={index}>
                     <CertificationItem 
                       contentEditable={isEditMode} 
                       suppressContentEditableWarning={true}
                       style={{ cursor: isEditMode ? 'text' : 'default', flex: 1 }}
+                      className="certification-item"
                     >
                       {language}
                     </CertificationItem>
@@ -763,14 +767,179 @@ const ResumePage = () => {
             background: none !important; 
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-size: 12px !important;
           }
+          
           @page { 
-            margin: 0.5in; 
-            size: A4;
+            margin: 0.3in !important;
+            size: A4 !important;
+            /* Hide headers and footers */
+            @top-left { content: none !important; }
+            @top-center { content: none !important; }
+            @top-right { content: none !important; }
+            @bottom-left { content: none !important; }
+            @bottom-center { content: none !important; }
+            @bottom-right { content: none !important; }
           }
+          
           * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            box-sizing: border-box !important;
+          }
+          
+          /* Force everything on one page */
+          html, body {
+            height: auto !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          
+          /* Main resume container optimization */
+          .resume-content {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0.5in !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            min-height: auto !important;
+            height: auto !important;
+            page-break-inside: avoid !important;
+            font-size: 11px !important;
+            line-height: 1.3 !important;
+          }
+          
+          /* Header section - Resume header, not browser header */
+          .resume-content header {
+            display: block !important;
+            visibility: visible !important;
+            margin-bottom: 0.15in !important;
+            padding-bottom: 0.1in !important;
+            page-break-inside: avoid !important;
+            border-bottom: 3px solid #1e293b !important;
+          }
+          
+          /* Name */
+          .resume-content h1 {
+            display: block !important;
+            visibility: visible !important;
+            font-size: 24px !important;
+            margin: 0 0 8px 0 !important;
+            line-height: 1.2 !important;
+            color: #1e293b !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+          }
+          
+          /* Contact info */
+          .contact-info {
+            display: grid !important;
+            visibility: visible !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            margin-top: 8px !important;
+            gap: 4px !important;
+            font-size: 10px !important;
+            color: #64748b !important;
+          }
+          
+          .contact-info span {
+            display: block !important;
+            visibility: visible !important;
+            color: #64748b !important;
+          }
+          
+          /* Summary */
+          .summary-section {
+            margin-bottom: 0.1in !important;
+            page-break-inside: avoid !important;
+          }
+          
+          /* Main grid layout */
+          .main-grid {
+            grid-template-columns: 1.8fr 1fr !important;
+            gap: 0.2in !important;
+            page-break-inside: avoid !important;
+          }
+          
+          /* Section titles */
+          h2 {
+            font-size: 14px !important;
+            margin: 0 0 6px 0 !important;
+            text-transform: uppercase !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            padding-bottom: 2px !important;
+          }
+          
+          /* Sections */
+          section {
+            margin-bottom: 0.12in !important;
+            page-break-inside: avoid !important;
+          }
+          
+          /* Job items */
+          .job-item {
+            margin-bottom: 8px !important;
+            page-break-inside: avoid !important;
+          }
+          
+          /* Job titles */
+          h3 {
+            font-size: 12px !important;
+            margin: 0 0 4px 0 !important;
+            line-height: 1.2 !important;
+          }
+          
+          /* Job dates */
+          .job-date {
+            font-size: 9px !important;
+          }
+          
+          /* Job descriptions */
+          ul {
+            margin: 4px 0 0 15px !important;
+            padding: 0 !important;
+          }
+          
+          li {
+            margin-bottom: 1px !important;
+            font-size: 10px !important;
+            line-height: 1.25 !important;
+          }
+          
+          /* Skills */
+          .skills-container {
+            gap: 4px !important;
+          }
+          
+          .skill-tag {
+            padding: 2px 6px !important;
+            font-size: 9px !important;
+            margin: 0 !important;
+          }
+          
+          /* Education and certifications */
+          .education-content,
+          .certifications-list {
+            font-size: 10px !important;
+            line-height: 1.3 !important;
+          }
+          
+          .education-content p,
+          .certification-item {
+            margin: 2px 0 !important;
+          }
+          
+          /* Hide page numbers and URL completely */
+          @page :first {
+            @bottom-center { content: none !important; }
+            @bottom-left { content: none !important; }
+            @bottom-right { content: none !important; }
+            @top-center { content: none !important; }
+            @top-left { content: none !important; }
+            @top-right { content: none !important; }
           }
         }
         
